@@ -3,7 +3,7 @@ when defined(nimscript): # for things that need outside access
 
   const
     # main source to build the ROM
-    mainFile* = "src"/"main.nim"
+    mainFile* = "src"/"rom.nim"
 
 # everything else
 
@@ -20,9 +20,6 @@ const
 
   # where in WRAM should the stack grow from
   stackStart* = 0xe000 # assuming DMG only
-
-  # where in HRAM should the sprite update code go
-  oamHramCodeStart* = 0xff80
 
   # where in WRAM should variables go
   dataStart* = 0xc0a0

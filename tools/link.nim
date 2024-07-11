@@ -153,9 +153,9 @@ when isMainModule:
     "-j", # generate NoICE debug file
     "-u", # update all the listing files to reflect actual locations
     # define globals
-      "-g _shadow_OAM=0x" & virtualSpritesStart.toHex(4),
-      "-g .STACK=0x" & stackStart.toHex(4),
-      "-g .refresh_OAM=0x" & oamHramCodeStart.toHex(4),
+      #"-g _shadow_OAM=0x" & virtualSpritesStart.toHex(4),
+      "-g STACK=0x" & stackStart.toHex(4),
+      #"-g .refresh_OAM=0x" & oamHramCodeStart.toHex(4),
     # define base addrs
       "-b _DATA=0x" & dataStart.toHex(4),
       "-b _CODE=0x" & codeStart.toHex(4),

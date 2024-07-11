@@ -45,7 +45,8 @@ proc execWithEcho* (command: string, exceptOnError: bool = true) =
   let outStrDisp = outStr.strip()
   if exceptOnError:
     if exitCode != 0:
-      raise newException(Exception, outStr)
+      echo outStr
+      quit(1)
     else:
       if outStrDisp != "": echo outStrDisp
   else:
