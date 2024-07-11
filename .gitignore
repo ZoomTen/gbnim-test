@@ -1,0 +1,9 @@
+*.gb
+*.ihx
+*.map
+*.noi
+*.sym
+*.exe
+_build
+tools/compile
+tools/link
