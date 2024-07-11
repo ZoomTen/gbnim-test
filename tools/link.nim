@@ -116,7 +116,8 @@ proc noi2sym(noiFileName, symFileName: string): void =
       let n = o.split(' ')
       assert n.len == 3
       # skip "l_" stuff because that's the section length
-      if n[1].startsWith("l_"):
+      # skip section names, too
+      if n[1].startsWith("l_") or n[1].startsWith("s_"):
         continue
       when false: # TODO: still assuming non-banked for now, this won't work
         # convert address to gameboy format

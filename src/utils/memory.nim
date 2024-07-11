@@ -56,10 +56,11 @@ proc myAlloc*(size: uint16): pointer {.importc:"myMalloc".}
 
 proc myCalloc*(size: uint16): pointer =
   var
+    counter = size
     current = cast[uint16](myAlloc(size))
     start = current
-    uend = start + size
-  while current < uend:
+  while counter > 0:
     cast[ptr byte](current)[] = 7
     current += 1
+    counter -= 1
   return cast[ptr byte](start)

@@ -3,6 +3,7 @@
 wMyHeap:: .ds 0x100
 wMyHeapEnd:: .ds 1
 
+___data_start:: ; start of Nim-generated data variables
 
 	.area _HRAM (ABS)
 .org 0xff80

@@ -27,9 +27,7 @@ _myMalloc::
 	cp e
 	ld bc, #0
 	ret z
-; add size of header (4)
-	inc de
-	inc de
+; add size of header (2)
 	inc de
 	inc de
 ; adjusted size must be >= 4
