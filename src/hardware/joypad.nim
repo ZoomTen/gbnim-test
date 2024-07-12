@@ -8,7 +8,7 @@ const
 
 # joypad result type
 type
-  Joypad* {.size: sizeof(byte).} = enum
+  JoypadButton* {.size: sizeof(byte).} = enum
     A = 0
     B
     Select
@@ -18,7 +18,7 @@ type
     Up
     Down
 
-  JoypadButtons* = set[Joypad]
+  JoypadButtons* = set[JoypadButton]
 
 func getJoypad*(): JoypadButtons {.
   importc: "joypad",

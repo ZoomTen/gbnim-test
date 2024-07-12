@@ -2,8 +2,6 @@
 ## VRAM manipulation functions.
 ##
 
-{.compile: "asm/video.asm".}
-
 type
   rStatModes* = enum
     mode0 = 0
@@ -29,7 +27,15 @@ type
     lcdOn
   rStatFlags* = set[rStatFlag]
   rLcdcFlags* = set[rLcdcFlag]
+  
+  VramTileset = distinct array[0x800, byte]
+  VramTilemap = distinct array[0x400, byte]
+  VramPointer = ptr VramTileset | ptr VramTilemap
 
+# Normally, these would be extern volatile SFR, but making them
+# const makes the Nim compiler compile these as numbers to be
+# dereferenced. The generated code seems to be optimized as well
+# as it would if it was made volatile.
 const
   rLcdc* = cast[ptr rLcdcFlags](0xff40)
   rStat* = cast[ptr rStatFlags](0xff41)
@@ -42,12 +48,19 @@ const
   rWy* = cast[ptr byte](0xff4a)
   rWx* = cast[ptr byte](0xff4b)
 
-  vTiles0* = cast[ptr array[0x800, byte]](0x8000)
-  vTiles1* = cast[ptr array[0x800, byte]](0x8800)
-  vTiles2* = cast[ptr array[0x800, byte]](0x9000)
+  vTiles0* = cast[ptr VramTileset](0x8000)
+  vTiles1* = cast[ptr VramTileset](0x8800)
+  vTiles2* = cast[ptr VramTileset](0x9000)
 
-  vMap0* = cast[ptr array[0x400, byte]](0x9800)
-  vMap1* = cast[ptr array[0x400, byte]](0x9c00)
+  vMap0* = cast[ptr VramTilemap](0x9800)
+  vMap1* = cast[ptr VramTilemap](0x9c00)
+
+## Defined in staticRam.asm, we reference it here
+var vblankAcked {.
+  importc: "vblankAcked",
+  codegenDecl: "extern volatile __sfr /* $# */ $#",
+  noinit
+.}: uint8
 
 ## Enable rLCDC flags
 template enableLcdcFeatures*(i: rLcdcFlags): untyped =
@@ -62,9 +75,10 @@ template disableLcdcFeatures*(i: rLcdcFlags): untyped =
 template turnOnScreen*(): untyped =
   enableLcdcFeatures({lcdOn})
 
-func turnOffScreen*(): void =
+proc turnOffScreen*(): void =
   if lcdOn notin rLcdc[]:
     return
+  ## Wait for Vblank first
   while rLy[] <= 144:
     discard
   rLcdc[] = rLcdc[] - {lcdOn}
@@ -73,8 +87,38 @@ func turnOffScreen*(): void =
 template tiles*(i: Natural): int =
   i * 0x10
 
+## Copy some data to VRAM even when the screen is still on.
+## This assumes fromAddr is NOT another VRAM address!
+proc copyFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
+  var
+    val {.noinit.}: byte
+    src = cast[uint16](fromAddr)
+    dest = cast[uint16](toAddr)
+    i = uint16(size)
+  
+  while i > 0:
+    when false:
+      while busy in rStat[]:
+        discard
+      ## While this would be the easy thing to do,
+      ## dereferencing two pointers is costly, and the actual
+      ## writing may very well be after the short window of time
+      ## that VRAM is available, a classic TOCTTOU problem.
+      dest[] = src[]
+      i -= 1'u16
+    else:
+      ## So instead, fetch the byte first
+      val = cast[ptr byte](src)[]
+      while busy in rStat[]:
+        discard
+      ## And then assign it as soon as VRAM is writeable.
+      cast[ptr byte](dest)[] = val
+    dest += 1'u16
+    src += 1'u16
+    i -= 1'u16
+
 ## Fill VRAM locations even when the screen is still on.
-func setVram*(toAddr: pointer, value: byte, size: Natural) =
+proc setMem*(toAddr: VramPointer, value: byte, size: Natural) =
   var
     destInt = cast[uint16](toAddr)
     dest {.noinit.}: ptr byte
@@ -89,40 +133,15 @@ func setVram*(toAddr: pointer, value: byte, size: Natural) =
     destInt += 1'u16
     i -= 1'u16
 
-## Copy some data to VRAM even when the screen is still on.
-## This assumes fromAddr is NOT another VRAM address!
-func copyVramFrom*(toAddr, fromAddr: pointer, size: Natural) =
-  var
-    val {.noinit.}: byte
-    src = cast[uint16](fromAddr)
-    dest = cast[uint16](toAddr)
-    i = uint16(size)
-  
-  while i > 0:
-    when false:
-      while busy in rStat[]: discard
-      ## While this would be the easy thing to do,
-      ## dereferencing two pointers is costly, and the actual
-      ## writing may very well be after the short window of time
-      ## that VRAM is available, a classic TOCTTOU problem.
-      dest[] = src[]
-    else:
-      ## So instead, fetch the byte first
-      val = cast[ptr byte](src)[]
-      while busy in rStat[]:
-        discard
-      ## And then assign it as soon as VRAM is writeable.
-      cast[ptr byte](dest)[] = val
-    dest += 1'u16
-    src += 1'u16
-    i -= 1'u16
-
-## Defined in asm, since this accesses HRAM. I don't know how to tell
-## SDCC that my extern variable's in HRAM and not WRAM so it can
-## optimize it down to an ldh.
-## The other way is to write a constant here, it can automatically tell
-## that it's in HRAM.
-proc waitFrame*(): void {.
-  importc:"waitFrame",
-  codegenDecl: "$# $#$# __preserves_regs(b,c,d,e,h,l)"
-.} = discard
+proc waitFrame*(): void =
+  ## reset acked flag
+  vblankAcked = 0
+  # `== 0` or `not bool(vblankAcked)` doesn't really give me
+  # some "natural" looking code
+  while vblankAcked != 1:
+    ## `halt` waits for ANY interrupt to fire, but only
+    ## the vblank interrupt should set `vblankAcked`.
+    asm """
+      halt
+      nop
+    """

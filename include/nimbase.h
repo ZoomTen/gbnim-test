@@ -14,6 +14,9 @@
 #define N_CLOSURE(rettype, name) N_NIMCALL(rettype, name)
 #define N_CLOSURE_PTR(rettype, name) N_NIMCALL_PTR(rettype, name)
 #define N_CDECL(rettype, name) rettype name
+#define NIM_ALIGN(x)
+#define FILE void
+#define stderr NULL
 typedef signed int NI;
 typedef unsigned int NU;
 typedef int8_t NI8;

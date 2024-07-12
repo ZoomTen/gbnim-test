@@ -17,15 +17,7 @@ proc setup*(): void =
   # idc that I "shouldn't do it"
   wram.clearMem(0xdff0-0xc000)
   
-  asm """
-  call myMallocInit
-  """
-  
-  let j = cast[ptr array[0x30,byte]](myAlloc(0x30))
-  for aa in 0..<len(j[]):
-    j[aa] = 194'u8
-  
-  let m = myCalloc(0x10)
+  initArenaMalloc()
   
   rStat[] = {}
   
@@ -47,38 +39,29 @@ proc setup*(): void =
     {win9c00, bgEnable}
   )
 
+## Note: safe to do heap alloc now
 proc main*(): void =
-  clearMem(
-    cast[ptr byte](0xc000),
-    0x1000
-  )
-  setMem(
-    cast[ptr byte](0xc000),
-    0x00,
-    0x500
-  )
-  var i = 0'u8
-  for k in 0'u8..5'u8:
-    i += 9'u8
-  setMem(
-    cast[ptr byte](0xcd00),
-    i,
-    0x250
-  )
-  
-  cast[ptr byte](0xce00)
-    .copyFrom(
-      cast[ptr byte](0xc000),
-      104
-    )
-  
-  let
-    test = "ABCDEF"
-    ij = 0
-  
-  enableLcdcFeatures {bgEnable}
-  #vMap0.setVram(test[ij], 105)
-  vMap0.copyVramFrom(test[0].addr, test.len)
   waitFrame()
+  turnOffScreen()
   
-  state.counter += 1
+  cast[ptr byte](14).copyFrom(
+    cast[ptr byte](0),
+    194
+  )
+  vMap0.copyFrom(
+    cast[ptr byte](0),
+    194
+  )
+  when false:
+    let j = cast[ptr array[0x30,byte]](myAlloc(0x30))
+    for aa in 0..<len(j[]):
+      j[aa] = 194'u8
+    
+    let m = myCalloc(0x10)
+    let something = "Abcdef"
+    rBgp[] = cast[byte](something[0])
+  var b = "Test"
+  b.add "ABCD"
+  for i in 0..<b.len:
+    rBgp[] = uint8(b[i])
+  raise newException(Defect, "aaa")

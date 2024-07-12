@@ -4,6 +4,8 @@ import ./romConfig
 const
   # whether or not we should be able inspect the output here
   buildCacheHere = true
+  # enable (roughly) Nim source lines in the ASM comments
+  useNimDebuggerLines = false
 
 # Precompile "scripts"
 #-------------------------------------#
@@ -11,7 +13,15 @@ proc precompileTools() =
   let tools = ["compile", "link"]
 
   for toolName in tools:
-    if findExe("tools" / toolName) == "":
+    let shouldRecompile =
+      (
+        findExe("tools" / toolName) == ""
+      ) or (
+        # TODO: also check if the tool src is newer than the binary
+        false
+      )
+    
+    if shouldRecompile:
       echo "make '" & toolName & "' wrapper..."
       selfExec(
         ["c", "-d:release", "--hints:off", thisDir() / "tools" / toolName & ".nim"].join(
@@ -36,17 +46,37 @@ proc setupGbdk() =
   put "icc.options.linker", ""
 
   # basic nim compiler options
-  switch "os", "standalone"
+  switch "os", (
+    when false:
+      ## Unfortunately this still isn't quite ready for primetime
+      ## in this situation, as it still makes quite a ton of assumptions
+      ## about the environment. I'm not ready for it to be deprecated
+      ## any time soon.
+      "any"
+    else:
+      ## This on the other hand, doesn't have that much overhead,
+      ## is quite minimal and without a lot of assumptions, so this
+      ## is what this is using.
+      "standalone"
+  )
   switch "gc", "arc"
   switch "cpu", "i386" # hoping this was necessary
-
-  switch "define", "useMalloc"
+  
+  switch "define", "nimMemAlignTiny"
+  when false:
+    ## Using this will take up a ton of space and will
+    ## actually waste your home bank with pure Nim runtime. :p
+    switch "define", "nimAllocPagesViaMalloc"
+    switch "define", "nimPage256"
+  else:
+    switch "define", "useMalloc"
+  
   switch "define", "noSignalHandler"
   switch "define", "danger"
   switch "define", "nimPreviewSlimSystem"
 
-  ## uncomment to enable nim source lines in the ASM
-  # switch "debugger", "native"
+  when useNimDebuggerLines:
+    switch "debugger", "native"
 
   # specifics
   switch "lineTrace", "off"
@@ -59,13 +89,6 @@ proc setupGbdk() =
   switch "panics", "on"
   switch "exceptions", "goto"
   switch "noMain", "on"
-
-  ## useAsmProcs: set it to use ASM versions of
-  ## critical procs like VRAM manipulation
-  # switch "define", "useAsmProcs"
-
-  ## gameDebug: nothing much
-  # switch "define", "gameDebug"
 
 #-------------------------------------#
 

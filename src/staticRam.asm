@@ -21,6 +21,10 @@ hGBType:: .ds 1
 ; the colors should be brightened up a bit.
 hIsGBA:: .ds 1
 
+_vblankAcked:: ; Alias for referencing by C/Nim
 hVBlankAcknowledged:: .ds 1
 
-hFirstFreeBlock:: .ds 2
+hFirstFreeBlock:: .ds 2 ; for arena and free-list alloc
+
+hLastAllocatedBlock:: .ds 2 ; for arena alloc
+hLastAllocationSize:: .ds 2 ; for arena alloc

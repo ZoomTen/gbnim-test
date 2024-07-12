@@ -1,4 +1,5 @@
 ; Initialization and scaffolding
+; This is for stuff that MUST be done as soon as the Game Boy starts up.
 
 	.include "include/hardware.inc"
 	.area _CODE
@@ -32,22 +33,6 @@ dmg$:
 
 ; set stack pointer
 	ld sp, #STACK
-
-; ; initialize SDCC's malloc
-; ; point the first free block pointer
-; 	ld hl, #(___sdcc_heap_free)
-; 	ld a, #(___sdcc_heap)
-; 	ld (hl+), a
-; 	ld (hl), #(___sdcc_heap >> 8)
-; ; initialize the first block itself
-; 	ld hl, #(___sdcc_heap)
-; 	ld a, #(___sdcc_heap_end)
-; 	ld (hl+), a
-; 	ld (hl), #(___sdcc_heap_end >> 8)
-; 	inc hl
-; 	xor a
-; 	ld (hl+), a
-; 	ld (hl), a
 
 ; ___data_start should be where the global variables are
 ; defined just after the heap stuff in mallocShims.asm
