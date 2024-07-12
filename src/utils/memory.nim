@@ -76,10 +76,6 @@ proc myCalloc*(size: uint16): pointer {.exportc:"myCalloc".} =
     counter -= 1
   return cast[ptr byte](start)
 
-proc myAllocFree*(which: pointer): void {.exportc:"myFree".} =
-  ## TODO
-  return
-
 ############## sdccMalloc ##############################################
 
 proc initSdccMalloc*(): void {.importc:"initSdccMalloc".}

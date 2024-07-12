@@ -56,7 +56,6 @@ _initSdccMalloc::
 	ld (hl), a
 	ret
 
-
 ; SDCC calling convention
 ; de = how many bytes (assumed unsigned)
 ; ret:
@@ -131,9 +130,11 @@ _myMalloc::
 	ret z
 ; add size of header (2)
 ; the 2 other bytes for "next free" can overlap
+; so we don't account for it here
 	inc de
 	inc de
-; adjusted size must be >= 4
+; ...but here, we do though
+; so the adjusted size must be >= 4
 	ld a, d
 	and a
 	jr nz, no_adjust$
@@ -164,11 +165,11 @@ no_adjust$:
 ; if hl <= de then bc == 0
 	ld a, h
 	cp d
-	jr c, afcompare$
-	jr nz, afcompare$
+	jr c, after_compare$
+	jr nz, after_compare$
 	ld a, l
 	cp e
-afcompare$:
+after_compare$:
 	jr c, oom$
 ; we've got enough memory, reserve the next block
 ; push the current next block ptr forwards
@@ -201,4 +202,7 @@ afcompare$:
 	ret
 oom$:
 	ld bc, #0
+	ret
+
+_myFree:: ; TODO
 	ret
