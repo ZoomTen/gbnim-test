@@ -90,15 +90,15 @@ when isMainModule:
         # patch out any call to malloc and free
         .replaceWord(
           "_malloc",
-          "_arenaAlloc"
+          "_myMalloc"
         )
         .replaceWord(
           "_free",
-          "_arenaFree"
+          "_myFree"
         )
         .replaceWord(
           "_calloc",
-          "_arenaCalloc"
+          "_myCalloc"
         ) & '\n'
       )
     writeFile(intermediateAsmOut, asmFile)

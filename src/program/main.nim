@@ -15,9 +15,9 @@ proc setup*(): void =
   
   # clear RAM
   # idc that I "shouldn't do it"
-  wram.clearMem(0xdff0-0xc000)
+  wram.setMem(0xff, 0xdff0-0xc000)
   
-  initArenaMalloc()
+  initMyMalloc()
   
   rStat[] = {}
   
@@ -41,8 +41,8 @@ proc setup*(): void =
 
 ## Note: safe to do heap alloc now
 proc main*(): void =
-  waitFrame()
-  turnOffScreen()
+  #waitFrame()
+  #turnOffScreen()
   
   cast[ptr byte](14).copyFrom(
     cast[ptr byte](0),

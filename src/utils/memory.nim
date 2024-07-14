@@ -2,8 +2,6 @@
 ## Memory manipulation functions.
 ##
 
-{.compile:"asm/memory.asm".}
-
 template setMemImpl(start: pointer, value: byte, length: Natural) {.dirty.} =
   when false:
     ## Idiomatically (I think), this would have been done like this:
@@ -62,13 +60,63 @@ proc copyFrom*(to, src: pointer, length: Natural): uint16 {.discardable.} =
 
 ############## myMalloc ################################################
 
-proc initMyMalloc*(): void {.importc:"myMallocInit".}
-proc myAlloc*(size: uint16): pointer {.importc:"myMalloc".}
+const useArena = false
 
+when useArena:
+  {.compile:"asm/allocator.arena.asm".}
+else:
+  {.compile:"asm/allocator.freeList.asm".}
+
+## This can also be used to free all allocations instantly
+proc initMyMalloc*(): void {.importc:"myMallocInit".}
+
+proc myMalloc*(size: uint16): pointer {.importc:"myMalloc".}
+
+when false:
+  proc myFree*(which: pointer): void {.importc:"myFree".}
+else:
+  var firstFree {.
+    importc: "first_free",
+    codegenDecl: "extern volatile __sfr /* $# */ $#",
+    noinit
+  .}: uint16
+  proc myFree*(which: pointer): void  {.exportc:"myFree".}=
+    asm """
+     jp _myFree2
+    """
+    if cast[uint16](which) == 0:
+      return
+
+    type
+      MemBlock = object
+        nextBlock: ptr MemBlock
+        nextFree: ptr MemBlock
+    var
+      prevFree = cast[ptr MemBlock](0)
+      thisBlockPtr = cast[ptr ptr MemBlock](firstFree.addr)
+      thisBlock = cast[ptr MemBlock](thisBlockPtr[])
+    while (thisBlock != nil) and (cast[uint16](thisBlock) < cast[uint16](which)):
+      prevFree = thisBlock
+      thisBlockPtr = thisBlock.nextFree.addr
+      thisBlock = thisBlock.nextFree
+    var
+      nextFree = thisBlock
+    thisBlock = cast[ptr MemBlock](cast[uint16](which) - 2)
+    thisBlock.nextFree = nextFree
+    thisBlockPtr[] = thisBlock
+    if nextFree == thisBlock.nextBlock:
+      ## merge with next block
+      thisBlock.nextFree = thisBlock.nextBlock.nextFree
+      thisBlock.nextBlock = thisBlock.nextBlock.nextBlock
+    if (prevFree != nil) and (prevFree.nextBlock == thisBlock):
+      ## merge with previous block
+      prevFree.nextBlock = thisBlock.nextBlock
+      prevFree.nextFree = thisBlock.nextFree
+    
 proc myCalloc*(size: uint16): pointer {.exportc:"myCalloc".} =
   var
     counter = size
-    current = cast[uint16](myAlloc(size))
+    current = cast[uint16](myMalloc(size))
     start = current
   while counter > 0:
     cast[ptr byte](current)[] = 7
@@ -80,19 +128,3 @@ proc myCalloc*(size: uint16): pointer {.exportc:"myCalloc".} =
 
 proc initSdccMalloc*(): void {.importc:"initSdccMalloc".}
 
-############## arenaMalloc #############################################
-
-proc initArenaMalloc*(): void {.importc:"arenaInit".}
-proc arenaFreeAll*(): void {.importc:"arenaFreeAll".}
-proc arenaAlloc*(size: uint16): pointer {.importc:"arenaAlloc".}
-proc arenaFree*(): void {.importc:"arenaFree".}
-proc arenaCalloc*(size: uint16): pointer {.exportc:"arenaCalloc".} =
-  var
-    counter = size
-    current = cast[uint16](arenaAlloc(size))
-    start = current
-  while counter > 0:
-    cast[ptr byte](current)[] = 7
-    current += 1
-    counter -= 1
-  return cast[ptr byte](start)

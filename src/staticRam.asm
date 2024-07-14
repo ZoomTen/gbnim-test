@@ -24,6 +24,7 @@ hIsGBA:: .ds 1
 _vblankAcked:: ; Alias for referencing by C/Nim
 hVBlankAcknowledged:: .ds 1
 
+_first_free:: ; Alias for referencing by C/Nim
 hFirstFreeBlock:: .ds 2 ; for arena and free-list alloc
 
 hLastAllocatedBlock:: .ds 2 ; for arena alloc
