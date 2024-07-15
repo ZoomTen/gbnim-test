@@ -54,6 +54,7 @@ proc copyFrom*(to, src: pointer, length: Natural): void {.discardable.} =
 
 ############## myMalloc ################################################
 
+## This is a simple "bump" memory allocator
 const useArena = false
 
 when useArena:
@@ -74,7 +75,7 @@ else:
     codegenDecl: "extern volatile __sfr /* $# */ $#",
     noinit
   .}: uint16
-  proc myFree*(which: pointer): void  {.exportc:"myFree".}=
+  proc myFree*(which: pointer): void  {.exportc:"myFree2".}=
     asm """
      jp _myFree2
     """
