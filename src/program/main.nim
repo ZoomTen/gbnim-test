@@ -13,13 +13,7 @@ proc setup*(): void =
     wram = cast[ptr byte](0xc000)
     normPal = 0b11_10_01_00
   
-  # clear RAM
-  # idc that I "shouldn't do it"
-  wram.zeroMem(0xdff0-0xc000)
-  wram.setMem(0xff, 0xdff0-0xc000)
-  wram.setMem(0x00, 0xdff0-0xc000)
-  
-  initMyMalloc()
+  initMalloc()
   
   rStat[] = {}
   
@@ -44,26 +38,15 @@ proc setup*(): void =
 ## Note: safe to do heap alloc now
 proc main*(): void =
   #waitFrame()
-  #turnOffScreen()
-  
-  cast[ptr byte](14).copyFrom(
-    cast[ptr byte](0),
-    194
-  )
-  vMap0.copyFrom(
-    cast[ptr byte](0),
-    194
-  )
-  when false:
-    let j = cast[ptr array[0x30,byte]](myAlloc(0x30))
-    for aa in 0..<len(j[]):
-      j[aa] = 194'u8
-    
-    let m = myCalloc(0x10)
-    let something = "Abcdef"
-    rBgp[] = cast[byte](something[0])
   var b = "Test"
   b.add "ABCD"
-  for i in 0..<b.len:
-    rBgp[] = uint8(b[i])
-  raise newException(Defect, "aaa")
+  
+  vMap0.copyFrom(b[0].addr, b.len)
+  
+  raise newException(Defect, "lol")
+  
+  while true:
+    asm """
+      halt
+      nop
+    """

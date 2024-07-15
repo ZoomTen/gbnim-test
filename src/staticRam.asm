@@ -1,12 +1,17 @@
 ; Miscellaneous RAM definitions.
+
+	.module StaticRamDefs
+
 	.area _DATA ; Static WRAM
-wMyHeap:: .ds 0x100
-wMyHeapEnd:: .ds 1
+_heap::
+wHeap:: .ds 0x100 - 1
+_heap_end::
+wHeapEnd:: .ds 1
 
 ___data_start:: ; start of Nim-generated data variables
 
 	.area _HRAM (ABS)
-.org 0xff80
+	.org 0xFF80
 ; The OAM DMA program for sprite updating will be
 ; copied here
 hSpriteDMAProgram:: .ds 16
@@ -24,8 +29,3 @@ hIsGBA:: .ds 1
 _vblankAcked:: ; Alias for referencing by C/Nim
 hVBlankAcknowledged:: .ds 1
 
-_first_free:: ; Alias for referencing by C/Nim
-hFirstFreeBlock:: .ds 2 ; for arena and free-list alloc
-
-hLastAllocatedBlock:: .ds 2 ; for arena alloc
-hLastAllocationSize:: .ds 2 ; for arena alloc

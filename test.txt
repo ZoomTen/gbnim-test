@@ -1,0 +1,28 @@
+myMallocInit
+104 cycles
+
+myMalloc
+best case ~400 cycles
+	at start: 16
+	at end: 416
+NimMyMalloc
+= Almost the same amount of cycles
+  Not bad!
+
+myFree
+best case ~440 cycles
+	at start: 32
+	at end: 472
+
+sdccMallocInit (my asm)
+108 cycles
+
+sdcc malloc
+best case 1400 !! cycles
+	at start: 16
+	at end: 1416
+
+sdcc free
+best case 988 cycles
+	at start: 500
+	at end: 1488

@@ -1,6 +1,8 @@
 ; Use SDCC's malloc implementation
 
-_initSdccMalloc::
+	.module AllocSdcc
+	.area _HOME
+_initMalloc::
 ; initialize SDCC's malloc
 ; point the first free block pointer
 	ld hl, #(___sdcc_heap_free)
@@ -17,4 +19,9 @@ _initSdccMalloc::
 	ld (hl+), a
 	ld (hl), a
 	ret
+
+; shims needed for GBDK malloc
+	.area _DATA
+___sdcc_heap:: .ds 0x800 - 1
+___sdcc_heap_end:: .ds 1
 

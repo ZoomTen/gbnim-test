@@ -1,3 +1,5 @@
+	.module HwVectors
+
 	.area _VECTORS (ABS)
 .org 0x00
 vec_00::

@@ -87,7 +87,7 @@ proc ihx2bin(ihxFileName, binFileName, gameName: string): void =
     romImage[0x134 + i] = byte(gameName[i])
     
   # fix both checksums
-  # header
+  # header TODO: fix this
   var headerCheck = 0'u8
   for i in 0x134..0x14c:
     headerCheck += romImage[i]
@@ -161,7 +161,7 @@ when isMainModule:
       "-b _DATA=0x" & dataStart.toHex(4),
       "-b _CODE=0x" & codeStart.toHex(4),
     # add libraries
-      "-k " & gbdkRoot/"lib"/"sm83", "-l sm83.lib",
+      #"-k " & gbdkRoot/"lib"/"sm83", "-l sm83.lib",
     # output to:
       outfDir / outfName & ".ihx",
   ] &

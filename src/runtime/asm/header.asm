@@ -1,4 +1,6 @@
 ; The Game Boy header
+
+	.module Header
 	.include "include/header.inc"
 	.area _HEADER (ABS)
 

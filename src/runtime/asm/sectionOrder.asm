@@ -1,3 +1,5 @@
+	.module SectionOrder
+
 	.area _HOME
 	.area _INITIALIZER
 	.area _CODE

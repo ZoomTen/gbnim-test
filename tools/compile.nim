@@ -80,25 +80,27 @@ when isMainModule:
     var asmFile = ""
     for line in intermediateAsmOut.lines:
       asmFile.add(
-        line
-        # optimize out "call hl" calls into a rst
-        .replace(
-          "\tcall\t___sdcc_call_hl",
-          "\trst\t0x" & callHlRstLocation.toHex(2)
-        )
-        # I'm doing piecewise stdlib replacement
-        # patch out any call to malloc and free
-        .replaceWord(
-          "_malloc",
-          "_myMalloc"
-        )
-        .replaceWord(
-          "_free",
-          "_myFree"
-        )
-        .replaceWord(
-          "_calloc",
-          "_myCalloc"
+        (
+          line
+          # optimize out "call hl" calls into a rst
+          .replace(
+            "\tcall\t___sdcc_call_hl",
+            "\trst\t0x" & callHlRstLocation.toHex(2)
+          )
+          # I'm doing piecewise stdlib replacement
+          # patch out any call to malloc and free
+          #.replaceWord(
+          #  "_malloc",
+          #  "_myMalloc"
+          #)
+          #.replaceWord(
+          #  "_free",
+          #  "_myFree"
+          #)
+          #.replaceWord(
+          #  "_calloc",
+          #  "_myCalloc"
+          #)
         ) & '\n'
       )
     writeFile(intermediateAsmOut, asmFile)

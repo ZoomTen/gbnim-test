@@ -1,9 +1,13 @@
 ; Arena/stack based allocator
+; wHeap must be defined somewhere in WRAM
 
+; not quite stable -- something to do with SDCC call conventions...
+
+	.module AllocStackLike
 	.area _HOME
-_myMallocInit::
+_initMalloc::
 ; point first free block to beginning of heap
-	ld hl, #(wMyHeap)
+	ld hl, #(wHeap)
 	ld a, l
 	ldh (hFirstFreeBlock), a
 	ld a, h
@@ -19,7 +23,7 @@ _myMallocInit::
 ; de = how many bytes (assumed unsigned)
 ; ret:
 ;	bc = pointer to next
-_myMalloc::
+_malloc::
 ; update last allocation size
 	ld a, e
 	ldh (hLastAllocationSize), a
@@ -45,7 +49,7 @@ _myMalloc::
 	ret
 
 ; de = which pointer
-_myFree::
+_free::
 ; The freed pointer MUST be the last allocation done
 ; before this point, otherwise, it is a no-op
 	ldh a, (hLastAllocatedBlock + 1)

@@ -5,9 +5,6 @@
 # this must appear first
 {.compile: "asm/sectionOrder.asm".}
 
-# Definitions needed for SDCC malloc
-{.compile: "asm/mallocShims.asm".}
-
 # Insert hardware vectors
 {.compile: "asm/hwVectors.asm".}
 

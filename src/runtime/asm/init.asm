@@ -1,6 +1,7 @@
 ; Initialization and scaffolding
 ; This is for stuff that MUST be done as soon as the Game Boy starts up.
 
+	.module Init
 	.include "include/hardware.inc"
 	.area _CODE
 
@@ -20,30 +21,8 @@ Init::
 	ldh (hIsGBA), a
 dmg$:
 
-; clear some part of the stack (for debugging)
-	ld hl, #(STACK-0x800)
-	ld bc, #0x800
-	xor a
-1$:
-	ld (hl+), a
-	dec c
-	jr nz, 1$
-	dec b
-	jr nz, 1$
-
 ; set stack pointer
 	ld sp, #STACK
-
-; ___data_start should be where the global variables are
-; defined just after the heap stuff in mallocShims.asm
-; we have to initialize this since Nim sets a variable here
-; for exceptions and the like ("in error mode")
-	ld hl, #___data_start
-	ld c, #0xff
-2$:
-	ld (hl+), a
-	dec c
-	jr nz, 2$
 
 ; finally, jump directly to the program...
 	call _NimMainModule

@@ -1,6 +1,10 @@
 ; Implicit free-list based allocator
 ; Inspired by SDCC's implementation
+; wHeap and wHeapEnd must be defined somewhere in WRAM
 
+; not quite stable -- something to do with SDCC call conventions...
+
+; Memory block structure:
 ; start struct Block
 ; 	dw NextBlockPtr
 ; 	union
@@ -9,19 +13,20 @@
 ; 	end union
 ; end struct Block
 
+	.module AllocFreeList
 	.area _HOME
-_myMallocInit::
+_initMalloc::
 ; point first free block to beginning of heap
-	ld hl, #(wMyHeap)
+	ld hl, #(wHeap)
 	ld a, l
 	ldh (hFirstFreeBlock), a
 	ld a, h
 	ldh (hFirstFreeBlock + 1), a
 ; for the first block initially, point the "next block"
 ; to end of heap
-	ld (hl), #(wMyHeapEnd)
+	ld (hl), #(wHeapEnd)
 	inc hl
-	ld (hl), #(wMyHeapEnd >> 8)
+	ld (hl), #(wHeapEnd >> 8)
 	inc hl
 	xor a
 ; and for its "next free block" pointer have a zero to
@@ -34,7 +39,7 @@ _myMallocInit::
 ; de = how many bytes
 ; ret:
 ;	bc = 0 or pointer to next
-_myMalloc::
+_malloc::
 ; if @de[] == nil: return nil
 	ld a, d
 	or e
@@ -66,7 +71,7 @@ no_adjust$:
 	inc bc
 	ld a, (bc)
 	ld h, a
-;; hl <- thisBlock.nextBlock
+;; hl <- thisBlock.nextBlock[]
 ;; bc <- thisBlock.nextBlock + 1
 	ld a, l
 	sub c
@@ -93,17 +98,18 @@ after_compare$:
 	ld h, b
 ;; hl <- thisBlock.nextFree + 1
 	add hl, de
+;; space was reserved for nextFree
 ;; hl <- hl + de == newBlock
 	.rept 3
 		ld a, (bc)
 		ld (hl-), a
 		dec bc
 	.endm
-;; newBlock = thisBlock
 	ld a, (bc)
 	ld (hl), a
-; put the address of the next block ptr at this block
-; and update the first free block ptr
+;; thisBlock was copied to newBlock
+;; put the address of the next block ptr at this block
+;; and update the first free block ptr
 	ld a, l
 	ld (bc), a
 	ldh (hFirstFreeBlock), a
@@ -124,7 +130,7 @@ oom$:
 ;	which pointer to free?
 ; ret:
 ;	nothing
-_myFree:: ; TODO
+_free::
 ;; if which == 0: return
 	ld a, d
 	or e
@@ -305,9 +311,3 @@ check_should_merge_prev$:
 	ld (hl+), a
 	inc bc
 	ret
-
-
-	.area _DATA
-wPrevFree:: .ds 2
-wThisBlockPtr:: .ds 2
-wNextFree:: .ds 2

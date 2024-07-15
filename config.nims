@@ -1,13 +1,6 @@
 import os, strutils
 import ./romConfig
 
-const
-  # whether or not we should be able inspect the output here
-  buildCacheHere = true
-  # enable (roughly) Nim source lines in the ASM comments
-  # may be unreliable!
-  useNimDebuggerLines = false
-
 # Precompile "scripts"
 #-------------------------------------#
 proc precompileTools() =

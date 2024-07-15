@@ -1,3 +1,5 @@
+import ./src/utils/config/types
+
 when defined(nimscript): # for things that need outside access
   import os
 
@@ -26,3 +28,15 @@ const
 
   # where in ROM should the compiled code start
   codeStart* = 0x150
+  
+  # which allocator to use
+  allocType* = Arena
+
+# Build script settings
+const
+  # whether or not we should be able inspect the output here
+  buildCacheHere* = true
+  
+  # enable (roughly) Nim source lines in the ASM comments
+  # may be unreliable!
+  useNimDebuggerLines* = false
