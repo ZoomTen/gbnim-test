@@ -15,7 +15,9 @@ proc setup*(): void =
   
   # clear RAM
   # idc that I "shouldn't do it"
+  wram.zeroMem(0xdff0-0xc000)
   wram.setMem(0xff, 0xdff0-0xc000)
+  wram.setMem(0x00, 0xdff0-0xc000)
   
   initMyMalloc()
   

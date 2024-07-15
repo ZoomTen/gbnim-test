@@ -2,7 +2,13 @@
 ## Memory manipulation functions.
 ##
 
-template setMemImpl(start: pointer, value: byte, length: Natural) {.dirty.} =
+## C assumes memset returns a ptr byte, but we're not doing that
+## here to reduce stack allocations. If you want that, you'll have
+## to calculate the end address manually beforehand.
+##
+## Also, Nim does not seem to make nimSetMem available, so we'll
+## have to make do anyway.
+proc setMemImpl(start: pointer, value: byte, length: Natural): void {.inline.} =
   when false:
     ## Idiomatically (I think), this would have been done like this:
     let
@@ -20,35 +26,24 @@ template setMemImpl(start: pointer, value: byte, length: Natural) {.dirty.} =
     ## Nim does not compile a for loop into C for loops, which
     ## SDCC at least recognizes...
 
-## setMem and clearMem should return ptr byte, but actually making that
-## its return type creates stack allocations in the resulting ASM code.
-##
-## Setting them to return a uint16 avoids that, so if you want to use
-## its return value, you should cast[ptr byte].
-proc setMem(start: pointer, value: byte, length: Natural): uint16 {.discardable.} =
-  setMemImpl(start, value, length)
-  return i
-
-## A separate proc was needed for optimization, for one this requires
-## only two arguments, avoiding stack allocation. And since the value
-## is fixed (and known to be 0), SDCC can recognize and optimize that.
-proc clearMem*(start: pointer, length: Natural): uint16  {.discardable.} =
-  setMemImpl(start, 0, length)
-  return i
-
 ## This variant should be automatically called when you invoke setMem
-## with a constant value, it just tells you to use clearMem if you
-## use it with a value == 0x00.
+## with a constant value, it just tells you to use zeroMem (from system)
+## if you use it with a value == 0x00.
 template setMem*(start: pointer, value: static byte, length: Natural) =
   when value == 0x00:
-    {.warning: "setMem called with 0x00, it's better to use clearMem instead".}
-  setMem(start, value, length)
+    {.warning: "setMem called with 0x00, better to use zeroMem instead".}
+  setMemImpl(start, value, length)
 
 template setMem*(start: pointer, value: byte, length: Natural) =
-  setMem(start, value, length)
+  setMemImpl(start, value, length)
 
-## Generic memory copying routine.
-proc copyFrom*(to, src: pointer, length: Natural): uint16 {.discardable.} =
+## Generic memory copying routine. copyMem is exposed in the system
+## module, however that one does dereferencing in a loop, which on
+## the Game Boy is pretty expensive.
+##
+## Until I find out a way to override system procs, please use this
+## instead.
+proc copyFrom*(to, src: pointer, length: Natural): void {.discardable.} =
   var
     i = cast[uint16](to)
     j = cast[uint16](src)
@@ -56,7 +51,6 @@ proc copyFrom*(to, src: pointer, length: Natural): uint16 {.discardable.} =
     cast[ptr byte](i)[] = cast[ptr byte](j)[]
     i += 1'u16
     j += 1'u16
-  return i
 
 ############## myMalloc ################################################
 

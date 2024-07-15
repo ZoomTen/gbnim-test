@@ -75,6 +75,7 @@ proc setupGbdk() =
   switch "define", "noSignalHandler"
   switch "define", "danger"
   switch "define", "nimPreviewSlimSystem"
+  switch "define", "nimNoLibc"
 
   when useNimDebuggerLines:
     switch "debugger", "native"
