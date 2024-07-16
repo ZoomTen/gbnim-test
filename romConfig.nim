@@ -7,6 +7,15 @@ when defined(nimscript): # for things that need outside access
     # main source to build the ROM
     mainFile* = "src"/"rom.nim"
 
+    # Build script settings
+    
+    # whether or not we should be able inspect the output here
+    buildCacheHere* = true
+    
+    # enable (roughly) Nim source lines in the ASM comments
+    # may be unreliable!
+    useNimDebuggerLines* = false
+
 # everything else
 
 const
@@ -30,13 +39,7 @@ const
   codeStart* = 0x150
   
   # which allocator to use
-  allocType* = Arena
+  allocType* = FreeList
 
-# Build script settings
-const
-  # whether or not we should be able inspect the output here
-  buildCacheHere* = true
-  
-  # enable (roughly) Nim source lines in the ASM comments
-  # may be unreliable!
-  useNimDebuggerLines* = false
+  # if we are using GBDK's libraries
+  useGbdk* = false

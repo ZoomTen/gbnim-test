@@ -2,6 +2,8 @@
 ## VRAM manipulation functions.
 ##
 
+import ../utils/waitLoop
+
 type
   rStatModes* = enum
     mode0 = 0
@@ -28,8 +30,10 @@ type
   rStatFlags* = set[rStatFlag]
   rLcdcFlags* = set[rLcdcFlag]
   
-  VramTileset = distinct array[0x800, byte]
-  VramTilemap = distinct array[0x400, byte]
+  # `distinct` turned out a little less useful here
+  # than I thought :(
+  VramTileset* = distinct array[0x800, byte]
+  VramTilemap* = distinct array[0x400, byte]
   VramPointer = ptr VramTileset | ptr VramTilemap
 
 # Normally, these would be extern volatile SFR, but making them
@@ -54,7 +58,15 @@ const
 
   vMap0* = cast[ptr VramTilemap](0x9800)
   vMap1* = cast[ptr VramTilemap](0x9c00)
-
+  
+  # predefined palettes
+  NormalPalette* = 0b11_10_01_00
+  InvertedPalette* = 0b00_01_10_11
+  
+  # for sprites, first color is transparent
+  # here's some commonly-used palettes
+  SpritePalette* = 0b10_01_00_00
+  
 ## Defined in staticRam.asm, we reference it here
 var vblankAcked {.
   importc: "vblankAcked",
@@ -87,6 +99,30 @@ proc turnOffScreen*(): void =
 template tiles*(i: Natural): int =
   i * 0x10
 
+when false:
+  ## {.borrow.} doesn't work; see nim-lang/Nim#3564
+  template `[]`(a: VramTilemap, i: Ordinal): byte =
+    cast[array[0x400, byte]](a)[i]
+  template `[]`(a: VramTileset, i: Ordinal): byte =
+    cast[array[0x800, byte]](a)[i]
+
+  ## Expression has no address
+  template offset*(base: ptr VramTilemap, x: uint, y: uint): ptr VramTilemap =
+    base[][(y * 0x20) + x].addr
+  ## Expression has no address
+  template offset*(base: ptr VramTileset, tile: uint): ptr VramTileset =
+    base[][tile * 0x10].addr
+else: ## :(
+  template offset*(base: ptr VramTilemap, x: uint, y: uint): ptr VramTilemap =
+    cast[ptr VramTilemap](
+      cast[uint16](base) + (y * 0x20) + x
+    )
+
+  template offset*(base: ptr VramTileset, tile: uint): ptr VramTileset =
+    cast[ptr VramTileset](
+      cast[uint16](base) + (tile * 0x10)
+    )
+
 ## Copy some data to VRAM even when the screen is still on.
 ## This assumes fromAddr is NOT another VRAM address!
 proc copyFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
@@ -105,7 +141,7 @@ proc copyFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
       ## writing may very well be after the short window of time
       ## that VRAM is available, a classic TOCTTOU problem.
       dest[] = src[]
-      i -= 1'u16
+      dec i
     else:
       ## So instead, fetch the byte first
       val = cast[ptr byte](src)[]
@@ -113,9 +149,32 @@ proc copyFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
         discard
       ## And then assign it as soon as VRAM is writeable.
       cast[ptr byte](dest)[] = val
-    dest += 1'u16
-    src += 1'u16
-    i -= 1'u16
+      inc dest
+      inc src
+      dec i
+
+## A special version for copying 2-color (1bpp) tile data.
+proc copy1bppFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
+  var
+    val {.noinit.}: byte
+    src = cast[uint16](fromAddr)
+    dest = cast[uint16](toAddr)
+    i = uint16(size)
+  
+  while i > 0:
+    val = cast[ptr byte](src)[]
+    while busy in rStat[]:
+      discard
+    # This shouldn't take long
+    cast[ptr byte](dest)[] = val
+    cast[ptr byte](dest + 1)[] = val
+    dest += 2'u16
+    inc src
+    dec i
+
+## Alias for copy1bppFrom
+template copyDoubleFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
+  copy1bppFrom(toAddr, fromAddr, size)
 
 ## Fill VRAM locations even when the screen is still on.
 proc setMem*(toAddr: VramPointer, value: byte, size: Natural) =
@@ -141,7 +200,4 @@ proc waitFrame*(): void =
   while vblankAcked != 1:
     ## `halt` waits for ANY interrupt to fire, but only
     ## the vblank interrupt should set `vblankAcked`.
-    asm """
-      halt
-      nop
-    """
+    waitInterrupt()

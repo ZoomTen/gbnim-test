@@ -10,8 +10,7 @@ wHeapEnd:: .ds 1
 
 ___data_start:: ; start of Nim-generated data variables
 
-	.area _HRAM (ABS)
-	.org 0xFF80
+	.area _HRAM
 ; The OAM DMA program for sprite updating will be
 ; copied here
 hSpriteDMAProgram:: .ds 16

@@ -148,20 +148,29 @@ when isMainModule:
   # going with whatever LCC has as the default
   execWithEcho((@[
     gbdkRoot / "bin" / "sdldgb",
+    
     # "-n", # silent
     "-i", # output to IHX
     "-m", # generate map output
     "-j", # generate NoICE debug file
     "-u", # update all the listing files to reflect actual locations
+    
     # define globals
-      #"-g _shadow_OAM=0x" & virtualSpritesStart.toHex(4),
       "-g STACK=0x" & stackStart.toHex(4),
-      #"-g .refresh_OAM=0x" & oamHramCodeStart.toHex(4),
+    
     # define base addrs
       "-b _DATA=0x" & dataStart.toHex(4),
       "-b _CODE=0x" & codeStart.toHex(4),
+      "-b _HRAM=0xFF80", # HRAM always starts here
+    
     # add libraries
-      #"-k " & gbdkRoot/"lib"/"sm83", "-l sm83.lib",
+      (
+        when useGbdk:
+          "-k " & gbdkRoot/"lib"/"sm83" & " -l sm83.lib"
+        else:
+          ""
+      ),
+    
     # output to:
       outfDir / outfName & ".ihx",
   ] &

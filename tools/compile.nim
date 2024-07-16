@@ -20,7 +20,6 @@ const callHlRstLocation = 0x00
 import std/os
 import std/strutils
 import ./helpers
-import std/streams
 import std/syncio
 
 template runCc(gbdkRoot, infile, outfile: string) =

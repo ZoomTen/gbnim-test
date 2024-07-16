@@ -10,10 +10,7 @@ wThisBlockPtr:: .ds 2
 _nextFree::
 wNextFree:: .ds 2
 
-	.area _HRAM (ABS)
-; ASxxx limitations won't allow me to put
-; HRAM areas as I would for _DATA, etc.
-	.org 0xFFFD
+	.area _HRAM
 _firstFreeBlockLow::
 hFirstFreeBlock:: .ds 1
 _firstFreeBlockHigh:: .ds 1

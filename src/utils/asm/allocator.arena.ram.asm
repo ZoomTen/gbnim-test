@@ -1,9 +1,6 @@
 	.module AllocStackLikeRam
 
-	.area _HRAM (ABS)
-; ASxxx limitations won't allow me to put
-; HRAM areas as I would for _DATA, etc.
-	.org 0xFFF9
+	.area _HRAM
 _firstFreeBlock::
 hFirstFreeBlock:: .ds 2
 
