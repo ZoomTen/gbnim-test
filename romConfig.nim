@@ -4,42 +4,42 @@ when defined(nimscript): # for things that need outside access
   import os
 
   const
-    # main source to build the ROM
     mainFile* = "src"/"rom.nim"
+    ## main source to build the ROM
 
     # Build script settings
     
-    # whether or not we should be able inspect the output here
     buildCacheHere* = true
+    ## whether or not we should be able inspect the output here
     
-    # enable (roughly) Nim source lines in the ASM comments
-    # may be unreliable!
     useNimDebuggerLines* = false
+    ## enable (roughly) Nim source lines in the ASM comments
+    ## may be unreliable!
 
 # everything else
 
 const
-  # ROM file name, without the file extension
-  # (extension is currently .gb for now)
   romName* = "built"
+  ## ROM file name, without the file extension
+  ## (extension is currently .gb for now)
 
-  # Name to use inside the ROM header
   romTitle* = "HELLO WORLD"
+  ## Name to use inside the ROM header
 
-  # where in WRAM should the virtual OAM start
   virtualSpritesStart* = 0xc000
+  ## where in WRAM should the virtual OAM start
 
-  # where in WRAM should the stack grow from
   stackStart* = 0xe000 # assuming DMG only
+  ## where in WRAM should the stack grow from
 
-  # where in WRAM should variables go
   dataStart* = 0xc0a0
+  ## where in WRAM should variables go
 
-  # where in ROM should the compiled code start
   codeStart* = 0x150
+  ## where in ROM should the compiled code start
   
-  # which allocator to use
   allocType* = FreeList
+  ## which allocator to use
 
-  # if we are using GBDK's libraries
   useGbdk* = false
+  ## if we are using GBDK's libraries

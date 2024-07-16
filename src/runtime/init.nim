@@ -1,5 +1,6 @@
-# This file really just holds the needed ASM stuff
-# needed to link together
+## This file really just holds the needed ASM stuff
+## needed to link together to create a working ROM.
+
 {.used.}
 
 # this must appear first

@@ -59,44 +59,56 @@ const
   vMap0* = cast[ptr VramTilemap](0x9800)
   vMap1* = cast[ptr VramTilemap](0x9c00)
   
-  # predefined palettes
   NormalPalette* = 0b11_10_01_00
+  ## predefined palettes
+  
   InvertedPalette* = 0b00_01_10_11
+  ## predefined palettes
   
-  # for sprites, first color is transparent
-  # here's some commonly-used palettes
   SpritePalette* = 0b10_01_00_00
+  ## for sprites, first color is transparent
+  ## here's some commonly-used palettes
   
-## Defined in staticRam.asm, we reference it here
+# Defined in staticRam.asm, we reference it here
 var vblankAcked {.
   importc: "vblankAcked",
   codegenDecl: "extern volatile __sfr /* $# */ $#",
   noinit
 .}: uint8
 
-## Enable rLCDC flags
 template enableLcdcFeatures*(i: rLcdcFlags): untyped =
+  ## Enable rLCDC flags.
   rLcdc[] = rLcdc[] + i
 
-## Disable rLCDC flags
 template disableLcdcFeatures*(i: rLcdcFlags): untyped =
+  ## Disable rLCDC flags. If you try to disable lcdOn (`rLcdcFlag`_) using this,
+  ## this will error out and you would be advised to use `turnOffScreen()`_
+  ## instead.
   when lcdOn in i:
     {.error: "Please use turnOffScreen() to disable the LCD instead of specifying lcdOn".}
   rLcdc[] = rLcdc[] - i
 
 template turnOnScreen*(): untyped =
+  ## Convenience for enabling the LCD.
   enableLcdcFeatures({lcdOn})
 
 proc turnOffScreen*(): void =
+  ## Safely turns off the LCD. According to the Pan Docs, the screen
+  ## cannot be turned off unless rLY hits V-blank.
   if lcdOn notin rLcdc[]:
     return
-  ## Wait for Vblank first
   while rLy[] <= 144:
+    # Wait for Vblank first
     discard
   rLcdc[] = rLcdc[] - {lcdOn}
 
-## Length of 2bpp tiles in bytes; example: 6.tiles(); or just 6.tiles
 template tiles*(i: Natural): int =
+  ## Length of 2bpp tiles in bytes.
+  ##
+  ## Example:
+  ## ```nim
+  ## 6.tiles() # 0x60 bytes
+  ## ```
   i * 0x10
 
 when false:
@@ -109,23 +121,48 @@ when false:
   ## Expression has no address
   template offset*(base: ptr VramTilemap, x: uint, y: uint): ptr VramTilemap =
     base[][(y * 0x20) + x].addr
+  
   ## Expression has no address
   template offset*(base: ptr VramTileset, tile: uint): ptr VramTileset =
     base[][tile * 0x10].addr
 else: ## :(
   template offset*(base: ptr VramTilemap, x: uint, y: uint): ptr VramTilemap =
+    ## Returns the memory location of some offset into the VRAM tile
+    ## map address specified in `base`. All positions are relative to
+    ## the top left.
+    ##
+    ## Example:
+    ## ```nim
+    ## vMap0.offset(1, 1) # 0x9821
+    ## ```
     cast[ptr VramTilemap](
       cast[uint16](base) + (y * 0x20) + x
     )
 
   template offset*(base: ptr VramTileset, tile: uint): ptr VramTileset =
+    ## Returns the memory location of some offset into the VRAM tile
+    ## set address specified in `base`. The argument specifies how
+    ## many tiles to offset it with.
+    ##
+    ## Example:
+    ## ```nim
+    ## vTiles1.offset(1) # 0x8810, tile #1 of tileset 0x8800
+    ## ```
     cast[ptr VramTileset](
       cast[uint16](base) + (tile * 0x10)
     )
 
-## Copy some data to VRAM even when the screen is still on.
-## This assumes fromAddr is NOT another VRAM address!
 proc copyFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
+  ## Copy some data to VRAM even when the screen is still on.
+  ## This assumes fromAddr is NOT another VRAM address!
+  ##
+  ## Example:
+  ## ```nim
+  ## let message = "Hello"
+  ##
+  ## # shows `message` on tile map 0x9800
+  ## vMap0.offset(0, 0).copyFrom(message[0].addr, message.len)
+  ## ```
   var
     val {.noinit.}: byte
     src = cast[uint16](fromAddr)
@@ -153,8 +190,8 @@ proc copyFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
       inc src
       dec i
 
-## A special version for copying 2-color (1bpp) tile data.
 proc copy1bppFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
+  ## A special version for copying 2-color (1bpp) tile data.
   var
     val {.noinit.}: byte
     src = cast[uint16](fromAddr)
@@ -172,12 +209,12 @@ proc copy1bppFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
     inc src
     dec i
 
-## Alias for copy1bppFrom
 template copyDoubleFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
+  ## Alias for copy1bppFrom
   copy1bppFrom(toAddr, fromAddr, size)
 
-## Fill VRAM locations even when the screen is still on.
 proc setMem*(toAddr: VramPointer, value: byte, size: Natural) =
+  ## Fill VRAM locations even when the screen is still on.
   var
     destInt = cast[uint16](toAddr)
     dest {.noinit.}: ptr byte
@@ -193,7 +230,8 @@ proc setMem*(toAddr: VramPointer, value: byte, size: Natural) =
     i -= 1'u16
 
 proc waitFrame*(): void =
-  ## reset acked flag
+  ## Waits for the next VBlank interrupt.
+  # reset acked flag
   vblankAcked = 0
   # `== 0` or `not bool(vblankAcked)` doesn't really give me
   # some "natural" looking code

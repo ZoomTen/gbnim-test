@@ -10,6 +10,13 @@ type StaticGameState = object
 var state: StaticGameState
 
 proc setup*(): void =
+  ## This function is what's called by the GB's init function.
+  ## Since the GB's init function is quite minimal (at least, unmodified),
+  ## you can initialize the hardware and the game state stuff over here.
+  ##
+  ## Keep in mind, you can't do heap allocations until you have called
+  ## `initMalloc()`_ first.
+  
   initMalloc()
   rStat[] = {}
   # reset scroll
@@ -28,8 +35,9 @@ proc setup*(): void =
     {win9c00, bgEnable}
   )
 
-## Note: safe to do heap alloc now
 proc main*(): void =
+  ## Your main game loop goes here.
+  
   #waitFrame()
   vTiles0.offset(0x20).copy1bppFrom(gfx_Letters.addr, 0x30.tiles)
   

@@ -5,12 +5,12 @@
 import ./config/types
 import ../../romConfig
 
-## C assumes memset returns a ptr byte, but we're not doing that
-## here to reduce stack allocations. If you want that, you'll have
-## to calculate the end address manually beforehand.
-##
-## Also, Nim does not seem to make nimSetMem available, so we'll
-## have to make do anyway.
+# C assumes memset returns a ptr byte, but we're not doing that
+# here to reduce stack allocations. If you want that, you'll have
+# to calculate the end address manually beforehand.
+#
+# Also, Nim does not seem to make nimSetMem available, so we'll
+# have to make do anyway.
 proc setMemImpl(start: pointer, value: byte, length: Natural): void {.inline.} =
   when false:
     ## Idiomatically (I think), this would have been done like this:
@@ -29,10 +29,10 @@ proc setMemImpl(start: pointer, value: byte, length: Natural): void {.inline.} =
     ## Nim does not compile a for loop into C for loops, which
     ## SDCC at least recognizes...
 
-## This variant should be automatically called when you invoke setMem
-## with a constant value, it just tells you to use zeroMem (from system)
-## if you use it with a value == 0x00.
 template setMem*(start: pointer, value: static byte, length: Natural) =
+  ## This variant should be automatically called when you invoke setMem
+  ## with a constant value, it just tells you to use `zeroMem()`_ (from system)
+  ## if you use it with a value == `0x00`.
   when value == 0x00:
     {.warning: "setMem called with 0x00, better to use zeroMem instead".}
   setMemImpl(start, value, length)
@@ -59,13 +59,13 @@ proc memcpy(to, src: pointer, length: uint16): pointer {.exportc:"__memcpy".} =
   to.copyFromImpl(src, length)
   return to
 
-## Generic memory copying routine. copyMem is exposed in the system
-## module, however that one does indexing and dereferencing in a loop,
-## which on the Game Boy is pretty expensive.
-##
-## Until I find out a way to override system procs, please use this
-## instead.
 proc copyFrom*(to, src: pointer, length: Natural): void {.inline.} =
+  ## Generic memory copying routine. copyMem is exposed in the system
+  ## module, however that one does indexing and dereferencing in a loop,
+  ## which on the Game Boy is pretty expensive.
+  ##
+  ## Until I find out a way to override system procs, please use this
+  ## instead.
   to.copyFromImpl(src, length)
 
 when allocType in [Arena, FreeList, Sdcc]:

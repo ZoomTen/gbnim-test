@@ -1,11 +1,13 @@
+## Program's entry point from the Nim side.
+
 import ./runtime/init
 from program/main as program import nil
 
-## Static RAM definitions
+# Static RAM definitions
 {.compile: "staticRam.asm".}
 
-## Entry point
-## Note: no heap allocation here
+# Entry point
+# Note: no heap allocation here
 when isMainModule:
   # The Game Boy RAM is initialized to random values on bootup.
   # We can just dive in if we're using an emulator that initializes
