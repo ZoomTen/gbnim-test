@@ -1,4 +1,4 @@
-	.include "include/hardware.inc"
+	.include "hardware.inc"
 	.area _HOME
 
 ;; joypad()

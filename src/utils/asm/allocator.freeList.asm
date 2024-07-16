@@ -2,8 +2,6 @@
 ; Inspired by SDCC's implementation
 ; wHeap and wHeapEnd must be defined somewhere in WRAM
 
-; not quite stable -- something to do with SDCC call conventions...
-
 ; Memory block structure:
 ; start struct Block
 ; 	dw NextBlockPtr

@@ -2,31 +2,32 @@
 ## VRAM manipulation functions.
 ##
 
-import ../utils/waitLoop
+import ./interrupts
+import ../macros/codegen
 
 type
   rStatModes* = enum
-    mode0 = 0
-    mode1
-    mode2
-    mode3
+    Mode0 = 0
+    Mode1
+    Mode2
+    Mode3
   rStatFlag* = enum
-    vBlank = 0
-    busy
-    coincidence
-    mode00
-    mode01
-    mode10
-    lycSelect
+    StatVblank = 0
+    Busy
+    Coincidence
+    Mode00
+    Mode01
+    Mode10
+    LycSelect
   rLcdcFlag* = enum
-    bgEnable = 0
-    objEnable
-    objTall
-    map9c00
-    tiles8000
-    winEnable
-    win9c00
-    lcdOn
+    BgEnable = 0
+    ObjEnable
+    ObjTall
+    Map9c00
+    Tiles8000
+    WinEnable
+    Win9c00
+    LcdOn
   rStatFlags* = set[rStatFlag]
   rLcdcFlags* = set[rLcdcFlag]
   
@@ -52,29 +53,40 @@ const
   rWy* = cast[ptr byte](0xff4a)
   rWx* = cast[ptr byte](0xff4b)
 
+# Friendlier names
+const
+  GbLcdControl* = rLcdc
+  GbLcdStat* = rStat
+  GbScrollY* = rScy
+  GbScrollX* = rScx
+  GbLineY* = rLy
+  GbBgPal* = rBgp
+  GbObjPal0* = rObp0
+  GbObjPal1* = rObp1
+  GbWinY* = rWy
+  GbWinX* = rWx
+
+## Tile sets
+const
   vTiles0* = cast[ptr VramTileset](0x8000)
   vTiles1* = cast[ptr VramTileset](0x8800)
   vTiles2* = cast[ptr VramTileset](0x9000)
 
+## BG tile maps
+const
   vMap0* = cast[ptr VramTilemap](0x9800)
   vMap1* = cast[ptr VramTilemap](0x9c00)
-  
+
+## predefined palettes
+const
   NormalPalette* = 0b11_10_01_00
-  ## predefined palettes
-  
   InvertedPalette* = 0b00_01_10_11
-  ## predefined palettes
-  
   SpritePalette* = 0b10_01_00_00
   ## for sprites, first color is transparent
   ## here's some commonly-used palettes
   
 # Defined in staticRam.asm, we reference it here
-var vblankAcked {.
-  importc: "vblankAcked",
-  codegenDecl: "extern volatile __sfr /* $# */ $#",
-  noinit
-.}: uint8
+var vblankAcked {.importc, hramByte, noinit.}: uint8
 
 template enableLcdcFeatures*(i: rLcdcFlags): untyped =
   ## Enable rLCDC flags.
@@ -95,12 +107,12 @@ template turnOnScreen*(): untyped =
 proc turnOffScreen*(): void =
   ## Safely turns off the LCD. According to the Pan Docs, the screen
   ## cannot be turned off unless rLY hits V-blank.
-  if lcdOn notin rLcdc[]:
+  if LcdOn notin rLcdc[]:
     return
   while rLy[] <= 144:
     # Wait for Vblank first
     discard
-  rLcdc[] = rLcdc[] - {lcdOn}
+  rLcdc[] = rLcdc[] - {LcdOn}
 
 template tiles*(i: Natural): int =
   ## Length of 2bpp tiles in bytes.
@@ -171,7 +183,7 @@ proc copyFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
   
   while i > 0:
     when false:
-      while busy in rStat[]:
+      while Busy in rStat[]:
         discard
       ## While this would be the easy thing to do,
       ## dereferencing two pointers is costly, and the actual
@@ -182,7 +194,7 @@ proc copyFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
     else:
       ## So instead, fetch the byte first
       val = cast[ptr byte](src)[]
-      while busy in rStat[]:
+      while Busy in rStat[]:
         discard
       ## And then assign it as soon as VRAM is writeable.
       cast[ptr byte](dest)[] = val
@@ -200,7 +212,7 @@ proc copy1bppFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
   
   while i > 0:
     val = cast[ptr byte](src)[]
-    while busy in rStat[]:
+    while Busy in rStat[]:
       discard
     # This shouldn't take long
     cast[ptr byte](dest)[] = val
@@ -222,7 +234,7 @@ proc setMem*(toAddr: VramPointer, value: byte, size: Natural) =
   while i > 0:
     # wait for Vram
     dest = cast[ptr byte](destInt)
-    while busy in rStat[]:
+    while Busy in rStat[]:
       discard
     # we can write to it now
     dest[] = value

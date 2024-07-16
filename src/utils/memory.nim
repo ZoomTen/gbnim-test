@@ -4,6 +4,7 @@
 
 import ./config/types
 import ../../romConfig
+import ../macros/codegen
 
 # C assumes memset returns a ptr byte, but we're not doing that
 # here to reduce stack allocations. If you want that, you'll have
@@ -77,6 +78,7 @@ when allocType in [Arena, FreeList, Sdcc]:
     {.compile:"asm/allocator.freeList.ram.asm".}
   elif allocType == Sdcc:
     {.compile:"asm/allocator.sdcc.asm".}
+    {.compile:"asm/allocator.sdcc.ram.asm".}
   proc initMalloc*(): void {.importc.}
   proc malloc(size: uint16): pointer {.importc.}
   proc free(which: pointer): void {.importc.}
@@ -87,23 +89,6 @@ else:
       nextFree: ptr MemBlock
   when allocType == NimArena:
     {.compile:"asm/allocator.arena.ram.asm".}
-    ## might macroize this idk
-    var
-      firstFreeBlock {.
-        importc,
-        codegenDecl: "extern volatile __sfr /* $# */ $#",
-        noinit
-      .}: uint16
-      lastAllocatedBlock {.
-        importc,
-        codegenDecl: "extern volatile __sfr /* $# */ $#",
-        noinit
-      .}: uint16
-      lastAllocationSize {.
-        importc,
-        codegenDecl: "extern volatile __sfr /* $# */ $#",
-        noinit
-      .}: uint16
     proc initMalloc*(): void = # TODO
       discard
     proc malloc(size: uint16): pointer {.exportc.} = # TODO
@@ -115,27 +100,11 @@ else:
     {.compile:"asm/allocator.freeList.ram.asm".}
     var
       ## SDCC limitation; SFR/HRAM regs are always uint8
-      firstFreeBlockLow {.
-        importc,
-        codegenDecl: "extern volatile __sfr /* $# */ $#",
-        noinit
-      .}: uint8
-      firstFreeBlockHigh {.
-        importc,
-        codegenDecl: "extern volatile __sfr /* $# */ $#",
-        noinit
-      .}: uint8
+      firstFreeBlockLow {.importc, hramByte, noinit.}: uint8
+      firstFreeBlockHigh {.importc, hramByte, noinit.}: uint8
       ## These can be uint16
-      heap {.
-        importc,
-        codegenDecl: "extern volatile $# $#",
-        noinit
-      .}: uint16
-      heap_end {.
-        importc,
-        codegenDecl: "extern volatile $# $#",
-        noinit
-      .}: uint16
+      heap {.importc, asmDefined, noinit.}: uint16
+      heap_end {.importc, asmDefined, noinit.}: uint16
     proc initMalloc*(): void =
       var
         heapBlk = cast[ptr MemBlock](heap.addr)
@@ -180,21 +149,9 @@ else:
       return thisBlock.nextFree.addr # start of user data
     
     ## This is the most complicated part I think.
-    var prevFree {.
-      importc,
-      codegenDecl: "extern volatile $# $#",
-      noinit
-    .}: uint16
-    var thisBlockPtr {.
-      importc,
-      codegenDecl: "extern volatile $# $#",
-      noinit
-    .}: uint16
-    var nextFree {.
-      importc,
-      codegenDecl: "extern volatile $# $#",
-      noinit
-    .}: uint16
+    var prevFree {.importc, asmDefined, noinit.}: uint16
+    var thisBlockPtr {.importc, asmDefined, noinit.}: uint16
+    var nextFree {.importc, asmDefined, noinit.}: uint16
     proc free(which: pointer): void {.exportc.} =
       return
       when false: # TODO

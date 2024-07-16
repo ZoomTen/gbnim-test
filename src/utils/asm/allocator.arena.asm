@@ -1,8 +1,6 @@
 ; Arena/stack based allocator
 ; wHeap must be defined somewhere in WRAM
 
-; not quite stable -- something to do with SDCC call conventions...
-
 	.module AllocStackLike
 	.area _HOME
 _initMalloc::

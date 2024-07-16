@@ -2,12 +2,10 @@
 ; This is for stuff that MUST be done as soon as the Game Boy starts up.
 
 	.module Init
-	.include "include/hardware.inc"
+	.include "hardware.inc"
 	.area _CODE
 
 Init::
-	di
-
 ; perform Game Boy type detection
 	ldh (hGBType), a
 	cp #.IS_CGB

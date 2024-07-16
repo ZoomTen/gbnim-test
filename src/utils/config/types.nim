@@ -10,14 +10,13 @@ type AllocType* = enum
   FreeList
   ## A custom free-list memory allocator implemented in ASM, but
   ## inspired by SDCC's allocator.
-  ## (not stable?)
   
   Sdcc
   ## SDCC's default allocator. You need to link with sm83.lib to
   ## use this.
   
   NimArena
-  ## Arena but in Nim
+  ## Arena but in Nim. Not implemented yet.
   
   NimFreeList
-  ## MyFreeList but in Nim
+  ## MyFreeList but in Nim. Still needs some work, not very useable yet.

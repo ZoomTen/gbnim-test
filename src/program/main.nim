@@ -1,7 +1,7 @@
 const useExample = true
 
 when useExample:
-  import ./example/main as example
+  import ./pocketClickerRemake/main as example
   export example.setup
   export example.main
 

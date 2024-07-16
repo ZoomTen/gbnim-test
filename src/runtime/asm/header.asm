@@ -1,7 +1,7 @@
 ; The Game Boy header
 
 	.module Header
-	.include "include/header.inc"
+	.include "header.inc"
 	.area _HEADER (ABS)
 
 .org 0x100 ; Entry point
@@ -30,7 +30,7 @@
 	.byte .DMG
 
 .org 0x144 ; New licensee code
-	.byte "zu"
+	.byte "z", "u"
 
 .org 0x146 ; SGB flag
 ; 0x03 = Enable Super Game Boy features

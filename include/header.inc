@@ -1,4 +1,6 @@
 ; Header constants
+; Convention: starts with . = part of an enum
+;             starts with _ = can be imported from C or Nim
 
 ; 0x143 - Game Boy type
 .DMG = 0x00

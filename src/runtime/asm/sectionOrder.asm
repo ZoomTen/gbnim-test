@@ -1,3 +1,5 @@
+; This is to help the linker order sections in the way we want
+
 	.module SectionOrder
 
 	.area _HOME

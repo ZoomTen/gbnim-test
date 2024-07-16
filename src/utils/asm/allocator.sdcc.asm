@@ -19,9 +19,3 @@ _initMalloc::
 	ld (hl+), a
 	ld (hl), a
 	ret
-
-; shims needed for GBDK malloc
-	.area _DATA
-___sdcc_heap:: .ds 0x800 - 1
-___sdcc_heap_end:: .ds 1
-

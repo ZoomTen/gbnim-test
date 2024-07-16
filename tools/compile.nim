@@ -51,6 +51,7 @@ template runAsm(gbdkRoot, infile, outfile: string) =
     (@[
       gbdkRoot / "bin" / "sdasgb",
       "-l", # generate listing
+        "-I" & getCurrentDir() / "include", # our stuff and our nimbase.h
       # LCC defaults
         "-pogn",
         "-o", outfile,
