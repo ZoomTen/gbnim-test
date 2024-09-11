@@ -19,6 +19,9 @@ Init::
 	ldh (hIsGBA), a
 dmg$:
 
+; copy sprite committing code to HRAM
+	ld de, #.
+
 ; set stack pointer
 	ld sp, #STACK
 

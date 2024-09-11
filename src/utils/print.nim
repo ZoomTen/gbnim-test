@@ -1,4 +1,4 @@
-import ../hardware/video
+import ./vram
 
 template print*(base: ptr VramTilemap, text: string) =
   ## Convenience for printing arbitrary strings to the screen.

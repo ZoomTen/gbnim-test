@@ -3,6 +3,7 @@
 	.module SectionOrder
 
 	.area _HOME
+	.area _OAMDMA_CODE
 	.area _INITIALIZER
 	.area _CODE
 	

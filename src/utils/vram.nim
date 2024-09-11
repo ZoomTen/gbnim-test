@@ -96,10 +96,10 @@ template enableLcdcFeatures*(i: rLcdcFlags): untyped =
   rLcdc[] = rLcdc[] + i
 
 template disableLcdcFeatures*(i: rLcdcFlags): untyped =
-  ## Disable rLCDC flags. If you try to disable lcdOn (`rLcdcFlag`_) using this,
+  ## Disable rLCDC flags. If you try to disable LcdOn (`rLcdcFlag`_) using this,
   ## this will error out and you would be advised to use `turnOffScreen()`_
   ## instead.
-  when lcdOn in i:
+  when LcdOn in i:
     {.
       error:
         "Please use turnOffScreen() to disable the LCD instead of specifying lcdOn"
@@ -108,7 +108,7 @@ template disableLcdcFeatures*(i: rLcdcFlags): untyped =
 
 template turnOnScreen*(): untyped =
   ## Convenience for enabling the LCD.
-  enableLcdcFeatures({lcdOn})
+  enableLcdcFeatures({LcdOn})
 
 proc turnOffScreen*(): void =
   ## Safely turns off the LCD. According to the Pan Docs, the screen
