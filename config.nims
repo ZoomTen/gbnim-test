@@ -1,3 +1,6 @@
+
+patchFile("stdlib", "memory", "patch/memory")
+
 import os, strutils
 import ./romConfig
 
@@ -54,7 +57,7 @@ proc setupGbdk() =
       "standalone"
   )
   switch "gc", "arc"
-  switch "cpu", "i386" # hoping this was necessary
+  switch "cpu", "avr" # hoping this was necessary
   
   switch "define", "nimMemAlignTiny"
   when false:

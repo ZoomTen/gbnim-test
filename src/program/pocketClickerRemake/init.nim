@@ -11,9 +11,11 @@ proc gameInit*(): void {.inline.} =
   gsState.toNextDiff = 0
   gsState.prevButtons = {}
   gsState.nowButtons = {}
+
+  copyMem(cast[pointer](0xD000), cast[pointer](0), 100)
   
   # load the font
-  vTiles0.offset(0x20).copyFrom(font.addr, 0x60.tiles)
+  vTiles0.offset(0x20).copyMem(font.addr, 0x60.tiles)
   
   # these parts won't really change throughout the course of the game,
   # so we can just do it here.

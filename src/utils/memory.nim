@@ -41,34 +41,6 @@ template setMem*(start: pointer, value: static byte, length: Natural) =
 template setMem*(start: pointer, value: byte, length: Natural) =
   setMemImpl(start, value, length)
 
-proc copyFromImpl(to, src: pointer, length: Natural): void {.inline.} =
-  var
-    i = cast[uint16](to)
-    j = cast[uint16](src)
-    k {.noinit.}: byte
-  let
-    endAddr = i + uint16(length)
-  while true:
-    if i >= endAddr:
-      break
-    k = cast[ptr byte](j)[]
-    cast[ptr byte](i)[] = k
-    inc i
-    inc j
-    
-proc memcpy(to, src: pointer, length: uint16): pointer {.exportc:"__memcpy".} =
-  to.copyFromImpl(src, length)
-  return to
-
-proc copyFrom*(to, src: pointer, length: Natural): void {.inline.} =
-  ## Generic memory copying routine. copyMem is exposed in the system
-  ## module, however that one does indexing and dereferencing in a loop,
-  ## which on the Game Boy is pretty expensive.
-  ##
-  ## Until I find out a way to override system procs, please use this
-  ## instead.
-  to.copyFromImpl(src, length)
-
 when allocType in [Arena, FreeList, Sdcc]:
   when allocType == Arena:
     {.compile:"asm/allocator.arena.asm".}
@@ -204,7 +176,6 @@ proc calloc*(size: uint16): pointer {.exportc.} =
     current += 1
     counter -= 1
   return cast[ptr byte](start)
-
 
 proc realloc*(which: pointer, size: uint16): pointer {.exportc.} =
   free(which)

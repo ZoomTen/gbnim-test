@@ -43,9 +43,9 @@ proc main*(): void =
   
   var b = "Test"
   b.add "ABCD"
-  vMap0.offset(2, 2).copyFrom(b[0].addr, b.len)
+  vMap0.offset(2, 2).copyMem(b[0].addr, b.len)
   
   let l = newException(CatchableError, "lol")
-  vMap0.offset(2, 7).copyFrom(l.msg[0].addr, l.msg.len)
+  vMap0.offset(2, 7).copyMem(l.msg[0].addr, l.msg.len)
   while true:
     waitInterrupt()

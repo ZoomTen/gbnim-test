@@ -164,7 +164,7 @@ else: ## :(
       cast[uint16](base) + (tile * 0x10)
     )
 
-proc copyFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
+proc copyMem*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
   ## Copy some data to VRAM even when the screen is still on.
   ## This assumes fromAddr is NOT another VRAM address!
   ##
