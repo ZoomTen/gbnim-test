@@ -1,5 +1,3 @@
-patchFile("stdlib", "memory", "src/utils/nimMemory")
-
 import os, strutils
 import ./src/config
 
@@ -95,6 +93,7 @@ proc setupGbdk() =
 #-------------------------------------#
 if projectPath() == thisDir() / mainFile:
   setupGbdk()
+  patchFile("stdlib", "memory", "src/utils/nimMemory")
   when buildCacheHere:
     switch "nimcache", "_build"
   switch "listCmd"

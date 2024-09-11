@@ -3,7 +3,7 @@
 ## Dunno why it's called "stdlib" when used with patchFile...
 ##
 
-proc nimZeroMem*(p: pointer, size: Natural) =
+proc nimZeroMem*(p: pointer, size: Natural) {.compilerproc.} =
   var
     a = cast[uint16](p)
     i = size
@@ -26,7 +26,7 @@ template copyMemImpl(dest, source: pointer, size: Natural) =
     inc i
     inc j
 
-proc nimCopyMem*(dest, source: pointer, size: Natural) =
+proc nimCopyMem*(dest, source: pointer, size: Natural) {.compilerproc.} =
   copyMemImpl(dest, source, size)
 
 proc c_memcpy(

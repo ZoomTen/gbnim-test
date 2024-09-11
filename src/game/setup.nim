@@ -7,6 +7,8 @@ import ../utils/print
 import ./types
 import ./gfx
 
+import ../utils/itoa
+
 proc setup*(): void =
   ## init Game Boy hardware
   turnOffScreen()
@@ -41,5 +43,11 @@ proc setup*(): void =
   vMap0.offset(1, 5).print("To next:")
   vMap0.offset(2, 14).print("POCKET CLICKER!")
   vMap0.offset(3, 16).print("Just tap A...")
+
+  uitoaAlt(1001, cast[ptr cstring](0xc333))
+
+  # TODO: these don't work yet
+  itoaAlt(567, cast[ptr cstring](0xc343))
+  ltoaAlt(567, cast[ptr cstring](0xc353))
 
   turnOnInterrupts()
