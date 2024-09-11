@@ -1,8 +1,8 @@
 ## Program's entry point from the Nim side.
 
 import ./runtime/init
-from ./gameSetup import setup
-from ./gameMainLoop import main
+from ./game/setup import setup
+from ./game/main import main
 
 # Static RAM definitions
 {.compile: "staticRam.asm".}
