@@ -3,7 +3,7 @@
 ##
 
 import ./interrupts
-import ../macros/codegen
+import ./codegen
 
 type
   rStatModes* = enum
@@ -55,16 +55,16 @@ const
 
 # Friendlier names
 const
-  GbLcdControl* = rLcdc
-  GbLcdStat* = rStat
-  GbScrollY* = rScy
-  GbScrollX* = rScx
-  GbLineY* = rLy
-  GbBgPal* = rBgp
-  GbObjPal0* = rObp0
-  GbObjPal1* = rObp1
-  GbWinY* = rWy
-  GbWinX* = rWx
+  LcdControl* = rLcdc
+  LcdStat* = rStat
+  ScrollY* = rScy
+  ScrollX* = rScx
+  LineY* = rLy
+  BgPal* = rBgp
+  ObjPal0* = rObp0
+  ObjPal1* = rObp1
+  WinY* = rWy
+  WinX* = rWx
 
 ## Tile sets
 const

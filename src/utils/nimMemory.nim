@@ -1,3 +1,8 @@
+##
+## This file patches `memory.nim` from the system module.
+## Dunno why it's called "stdlib" when used with patchFile...
+##
+
 proc nimZeroMem*(p: pointer, size: Natural) =
   var
     a = cast[uint16](p)

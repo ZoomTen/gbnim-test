@@ -26,5 +26,5 @@ const
   rNr52* = cast[ptr rNr52Flags](0xff26)
 
 const
-  GbAudioMasterControl* = rNr51
-  GbSoundPanning* = rNr52
+  AudioMasterControl* = rNr51
+  SoundPanning* = rNr52

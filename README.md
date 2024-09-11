@@ -35,11 +35,6 @@ too much on GBDK's. There's a ton of notes in these files, you should
 read every one of them if you can.
 
 <dl>
-<dt>romConfig.nim</dt>
-<dd><p>
-TODO
-</p></dd>
-
 <dt>config.nims</dt>
 <dd><p>
 TODO
@@ -85,6 +80,11 @@ we make here will become part of the global scope, thus ending up with
 a definition in static WRAM.
 </p></dd>
 
+<dt>src/config.nim</dt>
+<dd><p>
+TODO
+</p></dd>
+
 <dt>src/staticRam.asm</dt>
 <dd><p>
 Static WRAM and HRAM definitions. We can access these primarily from
@@ -101,27 +101,15 @@ we're using), these are handlers for panics and the such.
 
 <dt>src/runtime</dt>
 <dd><p>
-Used to implement headers, the Game Boy entry point, and some essential
-utilities.
-</p></dd>
-
-<dt>src/program</dt>
-<dd><p>
-The actual meat and potatoes. src/rom.nim calls into main.nim in this
-directory so we just pollute the stack instead of ending up with a dozen
-static RAM definitions.
-</p></dd>
-
-<dt>src/hardware</dt>
-<dd><p>
-Functions to mess about with the Game Boy's hardware, which is quite
-important to have any sort of input, graphics and sound.
+Used to implement headers and the Game Boy entry point.
 </p></dd>
 
 <dt>src/utils</dt>
 <dd><p>
 Various small utilities for messing about with memory and things like
 that.
+Also includes functions to mess about with the Game Boy's hardware, which is
+quite important to have any sort of input, graphics and sound.
 </p></dd>
 </dl>
 

@@ -1,8 +1,8 @@
 
-patchFile("stdlib", "memory", "patch/memory")
+patchFile("stdlib", "memory", "src/utils/nimMemory")
 
 import os, strutils
-import ./romConfig
+import ./src/config
 
 # Precompile "scripts"
 #-------------------------------------#

@@ -2,9 +2,9 @@
 ## Memory manipulation functions.
 ##
 
+import ../config
+import ./codegen
 import ./config/types
-import ../../romConfig
-import ../macros/codegen
 
 # C assumes memset returns a ptr byte, but we're not doing that
 # here to reduce stack allocations. If you want that, you'll have

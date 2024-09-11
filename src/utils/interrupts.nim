@@ -13,8 +13,8 @@ const
   rIf* = cast[ptr InterruptFlags](0xff0f)
 
 const
-  GbInterruptEnable* = rIe
-  GbInterruptFlag* = rIf
+  InterruptEnable* = rIe
+  InterruptFlag* = rIf
 
 template turnOffInterrupts*() =
   ## Injects the `di` instruction.

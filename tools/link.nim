@@ -8,7 +8,7 @@
 import os
 import ./helpers
 
-import ../romConfig # bleh
+import ../src/config # bleh
 
 import std/streams
 import std/strutils
