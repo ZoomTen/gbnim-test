@@ -13,7 +13,7 @@ when isMainModule:
   # will be set to random garbage, which can throw our
   # program early.
   initRuntimeVars()
-  
+
   # Alright, *now* we're ready :)
   setup()
   main()

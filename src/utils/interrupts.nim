@@ -5,7 +5,7 @@ type
     IntTimer
     IntSerial
     IntJoypad
-  
+
   InterruptFlags = set[InterruptModes]
 
 const

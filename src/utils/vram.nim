@@ -11,6 +11,7 @@ type
     Mode1
     Mode2
     Mode3
+
   rStatFlag* = enum
     StatVblank = 0
     Busy
@@ -19,6 +20,7 @@ type
     Mode01
     Mode10
     LycSelect
+
   rLcdcFlag* = enum
     BgEnable = 0
     ObjEnable
@@ -28,9 +30,10 @@ type
     WinEnable
     Win9c00
     LcdOn
+
   rStatFlags* = set[rStatFlag]
   rLcdcFlags* = set[rLcdcFlag]
-  
+
   # `distinct` turned out a little less useful here
   # than I thought :(
   VramTileset* = distinct array[0x800, byte]
@@ -84,7 +87,7 @@ const
   SpritePalette* = 0b10_01_00_00
   ## for sprites, first color is transparent
   ## here's some commonly-used palettes
-  
+
 # Defined in staticRam.asm, we reference it here
 var vblankAcked {.importc, hramByte, noinit.}: uint8
 
@@ -97,7 +100,10 @@ template disableLcdcFeatures*(i: rLcdcFlags): untyped =
   ## this will error out and you would be advised to use `turnOffScreen()`_
   ## instead.
   when lcdOn in i:
-    {.error: "Please use turnOffScreen() to disable the LCD instead of specifying lcdOn".}
+    {.
+      error:
+        "Please use turnOffScreen() to disable the LCD instead of specifying lcdOn"
+    .}
   rLcdc[] = rLcdc[] - i
 
 template turnOnScreen*(): untyped =
@@ -127,18 +133,24 @@ when false:
   ## {.borrow.} doesn't work; see nim-lang/Nim#3564
   template `[]`(a: VramTilemap, i: Ordinal): byte =
     cast[array[0x400, byte]](a)[i]
+
   template `[]`(a: VramTileset, i: Ordinal): byte =
     cast[array[0x800, byte]](a)[i]
 
   ## Expression has no address
-  template offset*(base: ptr VramTilemap, x: uint, y: uint): ptr VramTilemap =
+  template offset*(
+      base: ptr VramTilemap, x: uint, y: uint
+  ): ptr VramTilemap =
     base[][(y * 0x20) + x].addr
-  
+
   ## Expression has no address
   template offset*(base: ptr VramTileset, tile: uint): ptr VramTileset =
     base[][tile * 0x10].addr
+
 else: ## :(
-  template offset*(base: ptr VramTilemap, x: uint, y: uint): ptr VramTilemap =
+  template offset*(
+      base: ptr VramTilemap, x: uint, y: uint
+  ): ptr VramTilemap =
     ## Returns the memory location of some offset into the VRAM tile
     ## map address specified in `base`. All positions are relative to
     ## the top left.
@@ -147,9 +159,7 @@ else: ## :(
     ## ```nim
     ## vMap0.offset(1, 1) # 0x9821
     ## ```
-    cast[ptr VramTilemap](
-      cast[uint16](base) + (y * 0x20) + x
-    )
+    cast[ptr VramTilemap](cast[uint16](base) + (y * 0x20) + x)
 
   template offset*(base: ptr VramTileset, tile: uint): ptr VramTileset =
     ## Returns the memory location of some offset into the VRAM tile
@@ -160,9 +170,7 @@ else: ## :(
     ## ```nim
     ## vTiles1.offset(1) # 0x8810, tile #1 of tileset 0x8800
     ## ```
-    cast[ptr VramTileset](
-      cast[uint16](base) + (tile * 0x10)
-    )
+    cast[ptr VramTileset](cast[uint16](base) + (tile * 0x10))
 
 proc copyMem*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
   ## Copy some data to VRAM even when the screen is still on.
@@ -180,7 +188,7 @@ proc copyMem*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
     src = cast[uint16](fromAddr)
     dest = cast[uint16](toAddr)
     i = uint16(size)
-  
+
   while i > 0:
     when false:
       while Busy in rStat[]:
@@ -209,7 +217,7 @@ proc copy1bppFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
     src = cast[uint16](fromAddr)
     dest = cast[uint16](toAddr)
     i = uint16(size)
-  
+
   while i > 0:
     val = cast[ptr byte](src)[]
     while Busy in rStat[]:
@@ -221,7 +229,9 @@ proc copy1bppFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
     inc src
     dec i
 
-template copyDoubleFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
+template copyDoubleFrom*(
+    toAddr: VramPointer, fromAddr: pointer, size: Natural
+) =
   ## Alias for copy1bppFrom
   copy1bppFrom(toAddr, fromAddr, size)
 

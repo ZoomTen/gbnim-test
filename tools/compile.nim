@@ -24,39 +24,46 @@ import std/syncio
 
 template runCc(gbdkRoot, infile, outfile: string) =
   execWithEcho(
-    (@[
-      gbdkRoot / "bin" / "sdcc",
-      "-S", # compile only
-      # basic includes
+    (
+      @[
+        gbdkRoot / "bin" / "sdcc",
+        "-S", # compile only
+        # basic includes
         "-I" & gbdkRoot / "include", # gbdk libraries
         "-I" & getCurrentDir() / "include", # our stuff and our nimbase.h
-      # target architecture
+        # target architecture
         "-msm83",
         "-D" & "__TARGET_gb",
         "-D" & "__PORT_sm83",
-      "--opt-code-speed",
-      "--max-allocs-per-node", "10000",
-      # LCC defaults
+        "--opt-code-speed",
+        "--max-allocs-per-node",
+        "10000",
+        # LCC defaults
         "--no-std-crt0",
         "--fsigned-char",
         "-Wa-pogn",
-      # which files
-        "-o", outfile,
-        infile
-    ]).join(" ")
+        # which files
+        "-o",
+        outfile,
+        infile,
+      ]
+    ).join(" ")
   )
 
 template runAsm(gbdkRoot, infile, outfile: string) =
   execWithEcho(
-    (@[
-      gbdkRoot / "bin" / "sdasgb",
-      "-l", # generate listing
+    (
+      @[
+        gbdkRoot / "bin" / "sdasgb",
+        "-l", # generate listing
         "-I" & getCurrentDir() / "include", # our stuff and our nimbase.h
-      # LCC defaults
+        # LCC defaults
         "-pogn",
-        "-o", outfile,
-        infile
-    ]).join(" ")
+        "-o",
+        outfile,
+        infile,
+      ]
+    ).join(" ")
   )
 
 when isMainModule:
@@ -67,14 +74,14 @@ when isMainModule:
   let
     (outfDir, outfName, outfExt) = inputs.outputFile.splitFile()
     (srcfDir, srcfName, srcfExt) = inputs.objFiles[0].splitFile()
-  
+
   case srcfExt.toLowerAscii()
   of ".c":
     # run SDCC if we get a C file
     let
       intermediateAsmOut = outfDir / outfName & ".asm"
       actualOut = outfDir / outfName & outfExt
-    
+
     gbdkRoot.runCc(srcfDir / srcfName & srcfExt, intermediateAsmOut)
     # post process the resulting file
     var asmFile = ""
@@ -85,22 +92,22 @@ when isMainModule:
           # optimize out "call hl" calls into a rst
           .replace(
             "\tcall\t___sdcc_call_hl",
-            "\trst\t0x" & callHlRstLocation.toHex(2)
+            "\trst\t0x" & callHlRstLocation.toHex(2),
           )
-          # I'm doing piecewise stdlib replacement
-          # patch out any call to malloc and free
-          #.replaceWord(
-          #  "_malloc",
-          #  "_myMalloc"
-          #)
-          #.replaceWord(
-          #  "_free",
-          #  "_myFree"
-          #)
-          #.replaceWord(
-          #  "_calloc",
-          #  "_myCalloc"
-          #)
+            # I'm doing piecewise stdlib replacement
+            # patch out any call to malloc and free
+            #.replaceWord(
+            #  "_malloc",
+            #  "_myMalloc"
+            #)
+            #.replaceWord(
+            #  "_free",
+            #  "_myFree"
+            #)
+            #.replaceWord(
+            #  "_calloc",
+            #  "_myCalloc"
+            #)
         ) & '\n'
       )
     writeFile(intermediateAsmOut, asmFile)
@@ -108,8 +115,7 @@ when isMainModule:
   of ".asm", ".s":
     # run SDAS if we get an ASM file
     gbdkRoot.runAsm(
-      srcfDir / srcfName & srcfExt,
-      outfDir / outfName & outfExt
+      srcfDir / srcfName & srcfExt, outfDir / outfName & outfExt
     )
   else:
     raise newException(CatchableError, "unknown format")

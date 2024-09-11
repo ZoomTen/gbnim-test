@@ -29,7 +29,9 @@ template copyMemImpl(dest, source: pointer, size: Natural) =
 proc nimCopyMem*(dest, source: pointer, size: Natural) =
   copyMemImpl(dest, source, size)
 
-proc c_memcpy(dest, src: pointer, size: uint): pointer {.exportc: "__memcpy".} =
+proc c_memcpy(
+    dest, src: pointer, size: uint
+): pointer {.exportc: "__memcpy".} =
   ## This needs to be exposed since SDCC will automatically call this when
   ## assigning a struct. Whereas nimCopyMem doesn't need to return anything,
   ## memcpy does, and its return value will be used for the assignment.

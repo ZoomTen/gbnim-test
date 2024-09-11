@@ -8,8 +8,9 @@ type
     nr52f5 # unused
     nr52f6 # unused
     EnableAll = 7
+
   rNr52Flags* = set[rNr52Flag]
-  
+
   rNr51Output* = enum
     Ch1R = 0
     Ch2R
@@ -19,6 +20,7 @@ type
     Ch2L
     Ch3L
     Ch4L
+
   rNr51Outs* = set[rNr51Output]
 
 const

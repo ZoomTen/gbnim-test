@@ -1,13 +1,7 @@
-{.used.}
-
-## Useful overrides. This could have been in utils, but it's pretty essential.
-## No, apparently `import:runtime/overrides` does not work. You have to
-## manually import this.
-
 import ../macros/codegen
 
-{.compile:"asm/vendor/itoa.asm".}
-{.compile:"asm/vendor/ltoa.asm".}
+{.compile: "asm/vendor/itoa.asm".}
+{.compile: "asm/vendor/ltoa.asm".}
 
 const
   MaxInt16StrLen = 6
@@ -32,7 +26,6 @@ proc iToA(
     n: int16, s: ptr cstring, radix: uint8
 ): cstring {.importc: "itoa", oldCall.} =
   discard
-
 
 proc `$`*(x: int16): string =
   ## Nim has its own way of converting int to strings, and it does this

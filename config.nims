@@ -1,4 +1,3 @@
-
 patchFile("stdlib", "memory", "src/utils/nimMemory")
 
 import os, strutils
@@ -11,19 +10,20 @@ proc precompileTools() =
 
   for toolName in tools:
     let shouldRecompile =
-      (
-        findExe("tools" / toolName) == ""
-      ) or (
+      (findExe("tools" / toolName) == "") or (
         # TODO: also check if the tool src is newer than the binary
         false
       )
-    
+
     if shouldRecompile:
       echo "make '" & toolName & "' wrapper..."
       selfExec(
-        ["c", "-d:release", "--hints:off", thisDir() / "tools" / toolName & ".nim"].join(
-          " "
-        )
+        [
+          "c",
+          "-d:release",
+          "--hints:off",
+          thisDir() / "tools" / toolName & ".nim",
+        ].join(" ")
       )
 
 #-------------------------------------#
@@ -43,22 +43,23 @@ proc setupGbdk() =
   put "icc.options.linker", ""
 
   # basic nim compiler options
-  switch "os", (
-    when false:
-      ## Unfortunately this still isn't quite ready for primetime
-      ## in this situation, as it still makes quite a ton of assumptions
-      ## about the environment. I'm not ready for it to be deprecated
-      ## any time soon.
-      "any"
-    else:
-      ## This on the other hand, doesn't have that much overhead,
-      ## is quite minimal and without a lot of assumptions, so this
-      ## is what this is using.
-      "standalone"
-  )
+  switch "os",
+    (
+      when false:
+        ## Unfortunately this still isn't quite ready for primetime
+        ## in this situation, as it still makes quite a ton of assumptions
+        ## about the environment. I'm not ready for it to be deprecated
+        ## any time soon.
+        "any"
+      else:
+        ## This on the other hand, doesn't have that much overhead,
+        ## is quite minimal and without a lot of assumptions, so this
+        ## is what this is using.
+        "standalone"
+    )
   switch "gc", "arc"
   switch "cpu", "avr" # hoping this was necessary
-  
+
   switch "define", "nimMemAlignTiny"
   when false:
     ## Using this will take up a ton of space and will
@@ -67,7 +68,7 @@ proc setupGbdk() =
     switch "define", "nimPage256"
   else:
     switch "define", "useMalloc"
-  
+
   switch "define", "noSignalHandler"
   switch "define", "danger"
   switch "define", "nimPreviewSlimSystem"
@@ -104,7 +105,9 @@ if projectPath() == thisDir() / mainFile:
 task build, "Build a Game Boy ROM":
   precompileTools()
   let args = commandLineParams()[1 ..^ 1].join(" ")
-  selfExec(["c", args, "-o:" & romName & ".gb", thisDir() / mainFile].join(" "))
+  selfExec(
+    ["c", args, "-o:" & romName & ".gb", thisDir() / mainFile].join(" ")
+  )
 
 task clean, "Clean up this directory's compiled files":
   when buildCacheHere:

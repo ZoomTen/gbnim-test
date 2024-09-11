@@ -17,9 +17,11 @@ template codeGenMacro(appendString: string) {.dirty.} =
       for j in i:
         for k in j:
           if k.kind == nnkPragma:
-            k.add(nnkExprColonExpr.newTree(
-              newIdentNode("codegenDecl"), newLit(appendString)
-            ))
+            k.add(
+              nnkExprColonExpr.newTree(
+                newIdentNode("codegenDecl"), newLit(appendString)
+              )
+            )
   else:
     # silly: if a codegen pragma already exists, add the thing to it
     for child in node:
@@ -67,5 +69,3 @@ macro hramByte*(node: untyped): untyped =
     if node.kind notIn [nnkVarSection]:
       {.error: "this macro only works for vars".}
   codeGenMacro("extern volatile __sfr /* $# */ $#")
-
-

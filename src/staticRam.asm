@@ -2,12 +2,17 @@
 
 	.module StaticRamDefs
 
-	.area _DATA ; Static WRAM
+;;;;;;;; WRAM ;;;;;;;;
+	.area _DATA
+
 _heap::
 wHeap:: .ds 0x100 - 1
 _heap_end::
 wHeapEnd:: .ds 1
 
+;;;;;;;; end WRAM ;;;;;;;;
+
+;;;;;;;; HRAM ;;;;;;;;
 	.area _HRAM
 ; The OAM DMA program for sprite updating will be
 ; copied here
@@ -27,4 +32,6 @@ hIsGBA:: .ds 1
 
 _vblankAcked:: ; Alias for referencing by C/Nim
 hVBlankAcknowledged:: .ds 1
+
+;;;;;;;; end HRAM ;;;;;;;;
 
