@@ -52,8 +52,7 @@ vec_38:: nop
 
 .org 0x40 ; vblank
 vec_Vblank::
-	call hSpriteDMAProgram
-	reti
+	jp _vblank
 
 .org 0x48 ; LCD
 vec_LCD:: reti

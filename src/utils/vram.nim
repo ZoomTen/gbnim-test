@@ -89,7 +89,9 @@ const
   ## here's some commonly-used palettes
 
 # Defined in staticRam.asm, we reference it here
-var vblankAcked {.importc, hramByte, noinit.}: uint8
+# Also referenced in ../runtime/vblank.nim, since
+# codegen macros don't carry over.
+var vblankAcked {.importc, hramByte, noinit.}: bool
 
 template enableLcdcFeatures*(i: rLcdcFlags): untyped =
   ## Enable rLCDC flags.
@@ -254,10 +256,8 @@ proc setMem*(toAddr: VramPointer, value: byte, size: Natural) =
 proc waitFrame*(): void =
   ## Waits for the next VBlank interrupt.
   # reset acked flag
-  vblankAcked = 0
-  # `== 0` or `not bool(vblankAcked)` doesn't really give me
-  # some "natural" looking code
-  while vblankAcked != 1:
+  vblankAcked = false
+  while not vblankAcked:
     ## `halt` waits for ANY interrupt to fire, but only
     ## the vblank interrupt should set `vblankAcked`.
     waitInterrupt()

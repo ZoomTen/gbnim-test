@@ -1,6 +1,7 @@
 ## Program's entry point from the Nim side.
 
 import ./runtime/init
+import ./runtime/vblank
 from ./game/setup import setup
 from ./game/main import main
 

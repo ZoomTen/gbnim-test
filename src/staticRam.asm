@@ -23,6 +23,7 @@ wSpriteRAM:: .ds 4 * 40
 	.area _HRAM
 ; The OAM DMA program for sprite updating will be
 ; copied here
+_spriteDmaProgram::
 hSpriteDMAProgram:: .ds 0xA ; sizeof(_OAMDMA_CODE)
 
 ; The value of `a` upon startup.
@@ -37,6 +38,7 @@ hGBType:: .ds 1
 _isGba::
 hIsGBA:: .ds 1
 
+; Will be set to 01 by the VBlank routine.
 _vblankAcked:: ; Alias for referencing by C/Nim
 hVBlankAcknowledged:: .ds 1
 

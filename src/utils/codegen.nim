@@ -55,6 +55,13 @@ macro oldCall*(node: untyped): untyped =
       {.error: "this macro only works for procs".}
   codeGenMacro("$# $# $# __sdcccall(0)")
 
+macro isr*(node: untyped): untyped =
+  ## Declares a proc that is an ISR.
+  when false:
+    if node.kind notIn [nnkProcDef, nnkFuncDef]:
+      {.error: "this macro only works for procs".}
+  codeGenMacro("$# $# $# __critical __interrupt(0)")
+
 macro asmDefined*(node: untyped): untyped =
   ## Declares a var that has been allocated statically; i.e. defined
   ## explicitly in WRAM.
