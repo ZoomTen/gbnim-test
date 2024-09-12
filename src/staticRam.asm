@@ -46,4 +46,3 @@ _vblankAcked:: ; Alias for referencing by C/Nim
 hVBlankAcknowledged:: .ds 1
 
 ;;;;;;;; end HRAM ;;;;;;;;
-

@@ -56,3 +56,12 @@ proc nimCmpMem*(a, b: pointer, size: Natural): cint {.inline.} =
     inc pa
     inc pb
     dec i
+
+proc nimCStrLen*(s: cstring): int {.compilerproc, inline.} =
+  var
+    a = cast[uint16](s)
+    x = cast[ptr byte](a)[]
+  while x != 0:
+    inc a
+    x = cast[ptr byte](a)[]
+    inc result

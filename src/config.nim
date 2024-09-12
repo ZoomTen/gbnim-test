@@ -22,10 +22,13 @@ const
   ## where in WRAM should variables go
   codeStart* = 0x150
   ## where in ROM should the compiled code start
-  allocType* = FreeList
+  allocType* = Arena
   ## which allocator to use
   useGbdk* = false
   ## if we are using GBDK's libraries
+  useVendorItoa* = false
+  ## if we should use vendored GPL'd itoa or my crappy version
+  ## which is a lot slower.
 
   # Build script settings
   buildCacheHere* = true

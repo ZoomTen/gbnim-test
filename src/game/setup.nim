@@ -44,23 +44,4 @@ proc setup*(): void =
   vMap0.offset(2, 14).print("POCKET CLICKER!")
   vMap0.offset(3, 16).print("Just tap A...")
 
-  discard uitoa(1, cast[ptr cstring](0xc333), 10'u8) # 2136
-  uitoaAlt(1, cast[ptr cstring](0xc333))             # 2952
-
-  discard itoa(1, cast[ptr cstring](0xc333), 10'u8) # 2160
-  itoaAlt(1, cast[ptr cstring](0xc333))             # 4028
-
-  discard itoa(-1, cast[ptr cstring](0xc333), 10'u8) # 2256
-  itoaAlt(-1, cast[ptr cstring](0xc333))             # 4132
-
-  discard ultoa(1, cast[ptr cstring](0xc333), 10'u8) # 8576
-  ultoaAlt(1, cast[ptr cstring](0xc333))             # 7876
-
-  discard ltoa(1, cast[ptr cstring](0xc333), 10'u8) # 8656
-  ltoaAlt(1, cast[ptr cstring](0xc333))             # 8980
-
-  discard ltoa(-1, cast[ptr cstring](0xc333), 10'u8) # 8888
-  ltoaAlt(-1, cast[ptr cstring](0xc333))             # 9252
-
-
   turnOnInterrupts()
