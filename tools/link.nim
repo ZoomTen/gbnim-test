@@ -157,6 +157,7 @@ when isMainModule:
         # define base addrs
         "-b _DATA=0x" & dataStart.toHex(4),
         "-b _CODE=0x" & codeStart.toHex(4),
+        "-b _SPRITES=0x" & virtualSpritesStart.toHex(4),
         "-b _HRAM=0xFF80", # HRAM always starts here
         (
 

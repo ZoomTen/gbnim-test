@@ -7,5 +7,6 @@
 	.area _INITIALIZER
 	.area _CODE
 	
+	.area _SPRITES
 	.area _DATA
 	.area _INITIALIZED

@@ -11,12 +11,24 @@ call_HL::
 	jp (hl)
 
 .org 0x08
-; not used
-vec_08:: nop
+vec_08::
+MemcpySmall::
+;; Copy from DE to HL for C bytes
+	ld a, (de)
+	ld (hl+), a
+	inc de
+	dec c
+	jr nz, MemcpySmall
+	ret
 
 .org 0x10
-; not used
-vec_10:: nop
+vec_10::
+MemsetSmall::
+;; fill HL for C bytes with A
+	ld (hl+), a
+	dec c
+	jr nz, MemsetSmall
+	ret
 
 .org 0x18
 ; not used
@@ -39,7 +51,9 @@ vec_30:: nop
 vec_38:: nop
 
 .org 0x40 ; vblank
-vec_Vblank:: reti
+vec_Vblank::
+	call hSpriteDMAProgram
+	reti
 
 .org 0x48 ; LCD
 vec_LCD:: reti

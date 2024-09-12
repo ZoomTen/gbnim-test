@@ -12,11 +12,18 @@ wHeapEnd:: .ds 1
 
 ;;;;;;;; end WRAM ;;;;;;;;
 
+	.area _SPRITES
+; Needs to be on a boundary of 0x100
+; because the value to be loaded into the rDMA
+; register is HIGH(wSpriteRAM).
+; 4 bytes per sprite * 40 sprites
+wSpriteRAM:: .ds 4 * 40
+
 ;;;;;;;; HRAM ;;;;;;;;
 	.area _HRAM
 ; The OAM DMA program for sprite updating will be
 ; copied here
-hSpriteDMAProgram:: .ds 16
+hSpriteDMAProgram:: .ds 0xA ; sizeof(_OAMDMA_CODE)
 
 ; The value of `a` upon startup.
 ; Functions can query this to determine GB/GBC mode.

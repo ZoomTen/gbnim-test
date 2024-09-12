@@ -15,6 +15,9 @@
 # ASM init
 {.compile: "asm/init.asm".}
 
+# Sprite committing code (OAM DMA update)
+{.compile: "asm/commitSprites.asm".}
+
 template initRuntimeVars*(): untyped =
   # The Game Boy RAM is initialized to random values on bootup.
   # We can just dive in if we're using an emulator that initializes
@@ -22,6 +25,10 @@ template initRuntimeVars*(): untyped =
   # will go bonkers, because there are a couple of global variables
   # = static allocations that Nim considers when running the program
   # and these need to be cleared out first before doing anything.
+
+  # I should point out that NimSkull does this stuff automatically,
+  # but I'd probably need to make a separate version since they do not
+  # support patchFile and such other "frivolous" things... yet?
   
   # Clear hooks
   globalRaiseHook = nil
