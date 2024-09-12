@@ -10,6 +10,9 @@ wHeap:: .ds 0x100 - 1
 _heap_end::
 wHeapEnd:: .ds 1
 
+_gameCounter::
+wGameCounter:: .ds 2
+
 ;;;;;;;; end WRAM ;;;;;;;;
 
 	.area _SPRITES

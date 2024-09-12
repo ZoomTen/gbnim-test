@@ -37,7 +37,7 @@ template runCc(gbdkRoot, infile, outfile: string) =
         "-D" & "__PORT_sm83",
         "--opt-code-speed",
         "--max-allocs-per-node",
-        "10000",
+        "50000",
         # LCC defaults
         "--no-std-crt0",
         "--fsigned-char",

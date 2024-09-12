@@ -4,6 +4,7 @@
 
 import ./interrupts
 import ./codegen
+import ./incdec
 
 type
   rStatModes* = enum

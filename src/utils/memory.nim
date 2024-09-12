@@ -6,6 +6,11 @@ import ../config
 import ./codegen
 import ./config/types
 
+
+# With += 1 and -= 1 SDCC adds a few extra instructions
+# elsewhere unrelated for some bizarre reason
+import ./incdec
+
 # C assumes memset returns a ptr byte, but we're not doing that
 # here to reduce stack allocations. If you want that, you'll have
 # to calculate the end address manually beforehand.

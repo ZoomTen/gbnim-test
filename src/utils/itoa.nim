@@ -1,5 +1,8 @@
 import ./codegen
 
+# This import definitely makes a difference :/
+import ./incdec
+
 {.compile: "asm/vendor/itoa.asm".}
 {.compile: "asm/vendor/ltoa.asm".}
 
@@ -35,94 +38,64 @@ let powersOf10i32: array[10, int32] = [
 
 let powersOf10i16: array[5, int16] = [10000, 1000, 100, 10, 1]
 
-proc ltoaAlt*(n: int32, s: ptr cstring): void =
-  var
-    nn = n
-    buf = cast[uint16](s)
-    powp = cast[uint16](powersOf10i32[0].addr)
-  let negative =
-    if nn < 0:
-      true
-    else:
-      nn = -nn
-      false
-  if negative:
-    cast[ptr char](buf)[] = '-'
-    inc buf
-  var
-    place_value {.noinit.}: int32
-    digit {.noinit.}: byte
-  let endPl = powp + (len(powersOf10i32) * sizeof(powersOf10i32[0]))
-  while powp < endPl:
-    place_value = cast[ptr int32](powp)[]
-    digit = 0
-    while nn >= place_value:
-      nn -= place_value
-      inc digit
-    if digit != 0:
-      cast[ptr byte](buf)[] = '0'.ord.byte + digit
-      inc buf
-    powp += sizeof(powersOf10i32[0]).uint16
-  cast[ptr byte](buf)[] = 0
-
-proc itoaAlt*(n: int16, s: ptr cstring): void =
-  var
-    nn = n
-    buf = cast[uint16](s)
-    powp = cast[uint16](powersOf10i16[0].addr)
-  let negative =
-    if nn < 0:
-      true
-    else:
-      nn = -nn
-      false
-  if negative:
-    cast[ptr char](buf)[] = '-'
-    inc buf
-  var
-    place_value {.noinit.}: int16
-    digit {.noinit.}: byte
-  let endPl = powp + (len(powersOf10i16) * sizeof(powersOf10i16[0]))
-  while powp < endPl:
-    place_value = cast[ptr int16](powp)[]
-    digit = 0
-    while nn >= place_value:
-      nn -= place_value
-      inc digit
-    if digit != 0:
-      cast[ptr byte](buf)[] = '0'.ord.byte + digit
-      inc buf
-    powp += sizeof(powersOf10i16[0]).uint16
-  cast[ptr byte](buf)[] = 0
-
-# TODO: this works, but find a way to optimize this!
-proc uitoaAlt*(n: uint16, s: ptr cstring): void =
-  var buf = cast[uint16](s)
+# {.dirty.} is needed so that there's less risk of random identifiers
+# being generated when they don't exist
+# needs more work ...
+template itoaGeneral[T](
+    n: T,
+    s: ptr cstring,
+    tableToUse: untyped,
+    accountForNegative: static bool,
+): void {.dirty.} =
+  var bufferCursor = cast[uint16](s)
   if n == 0:
-    cast[ptr byte](buf)[] = '0'.ord
-    inc buf
+    cast[ptr byte](bufferCursor)[] = '0'.ord
+    inc bufferCursor
   else:
+    var nMutable = n
+    # append '-' character to beginning of string
+    when accountForNegative:
+      if (
+        if nMutable < 0:
+          true
+        else:
+          # Could be replaced with toggling the high bit?
+          nMutable = -nMutable
+          false
+      ):
+        cast[ptr char](bufferCursor)[] = '-'
+        inc bufferCursor
+    # do print
     var
-      nn = n
-      powp = cast[uint16](powersOf10i16[0].addr)
-    var
-      place_value {.noinit.}: uint16
-      digit {.noinit.}: byte
+      pow10Cursor = cast[uint16](tableToUse[0].addr)
+      placeValue {.noinit.}: typeof(n)
+      asciiDigit: byte = '0'.ord.byte
       leadingZero = true
-    let endPl = powp + (len(powersOf10i16) * sizeof(powersOf10i16[0]))
-    while powp < endPl:
-      place_value = cast[ptr uint16](powp)[]
-      digit = 0
-      while nn >= place_value:
-        nn -= place_value
-        inc digit
-      if digit != 0 and leadingZero:
+    let pow10End = cast[uint16](tableToUse[len(tableToUse) - 1].addr)
+    while pow10Cursor < pow10End:
+      placeValue = cast[ptr typeof(n)](pow10Cursor)[]
+      while nMutable >= placeValue:
+        nMutable -= placeValue
+        inc asciiDigit
+      if asciiDigit != '0'.ord.byte and leadingZero:
         leadingZero = false
       if not leadingZero:
-        cast[ptr byte](buf)[] = '0'.ord.byte + digit
-        inc buf
-      powp += sizeof(powersOf10i16[0]).uint16
-  cast[ptr byte](buf)[] = 0
+        cast[ptr byte](bufferCursor)[] = asciiDigit
+        inc bufferCursor
+      pow10Cursor += uint16(sizeof(powersOf10i16[0]))
+  cast[ptr byte](bufferCursor)[] = 0
+
+proc ltoaAlt*(n: int32, s: ptr cstring): void =
+  itoaGeneral(n, s, powersOf10i32, true)
+
+proc ultoaAlt*(n: uint32, s: ptr cstring): void =
+  itoaGeneral(n, s, powersOf10i32, false)
+
+proc itoaAlt*(n: int16, s: ptr cstring): void =
+  itoaGeneral(n, s, powersOf10i16, true)
+
+proc uitoaAlt*(n: uint16, s: ptr cstring): void =
+  itoaGeneral(n, s, powersOf10i16, false)
 
 proc `$`*(x: int16): string =
   ## Nim has its own way of converting int to strings, and it does this

@@ -44,9 +44,7 @@ proc setup*(): void =
   vMap0.offset(2, 14).print("POCKET CLICKER!")
   vMap0.offset(3, 16).print("Just tap A...")
 
-  uitoaAlt(1001, cast[ptr cstring](0xc333))
-
-  # TODO: these don't work yet
+  uitoaAlt(572, cast[ptr cstring](0xc333))
   itoaAlt(567, cast[ptr cstring](0xc343))
   ltoaAlt(567, cast[ptr cstring](0xc353))
 

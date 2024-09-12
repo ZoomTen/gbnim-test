@@ -9,10 +9,12 @@ proc nimZeroMem*(p: pointer, size: Natural) {.compilerproc.} =
     i = size
   while i != 0:
     cast[ptr byte](a)[] = 0'u8
+    ## No need to override inc and dec here
+    ## The compiler optimizes this as well as it would have
     inc a
     dec i
 
-template copyMemImpl(dest, source: pointer, size: Natural) =
+template copyMemImpl(dest, source: pointer, size: Natural) {.dirty.} =
   var
     i = cast[uint16](dest)
     j = cast[uint16](source)
