@@ -123,6 +123,11 @@ proc turnOffScreen*(): void =
     discard
   rLcdc[] = rLcdc[] - {LcdOn}
 
+template waitVram*() =
+  ## Waits for the next rSTAT interrupt.
+  while Busy in LcdStat[]:
+    discard
+
 template tiles*(i: Natural): int =
   ## Length of 2bpp tiles in bytes.
   ##
@@ -194,8 +199,7 @@ proc copyMem*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
 
   while i > 0:
     when false:
-      while Busy in rStat[]:
-        discard
+      waitVram()
       ## While this would be the easy thing to do,
       ## dereferencing two pointers is costly, and the actual
       ## writing may very well be after the short window of time
@@ -205,8 +209,7 @@ proc copyMem*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
     else:
       ## So instead, fetch the byte first
       val = cast[ptr byte](src)[]
-      while Busy in rStat[]:
-        discard
+      waitVram()
       ## And then assign it as soon as VRAM is writeable.
       cast[ptr byte](dest)[] = val
       inc dest
@@ -223,8 +226,7 @@ proc copy1bppFrom*(toAddr: VramPointer, fromAddr: pointer, size: Natural) =
 
   while i > 0:
     val = cast[ptr byte](src)[]
-    while Busy in rStat[]:
-      discard
+    waitVram()
     # This shouldn't take long
     cast[ptr byte](dest)[] = val
     cast[ptr byte](dest + 1)[] = val
@@ -247,8 +249,7 @@ proc setMem*(toAddr: VramPointer, value: byte, size: Natural) =
   while i > 0:
     # wait for Vram
     dest = cast[ptr byte](destInt)
-    while Busy in rStat[]:
-      discard
+    waitVram()
     # we can write to it now
     dest[] = value
     destInt += 1'u16
