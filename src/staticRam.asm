@@ -45,4 +45,8 @@ hIsGBA:: .ds 1
 _vblankAcked:: ; Alias for referencing by C/Nim
 hVBlankAcknowledged:: .ds 1
 
+; ; Will be set to 01 by the STAT/LCD interrupt.
+; _statAcked:: ; Alias
+; hStatAcknowledged:: .ds 1
+
 ;;;;;;;; end HRAM ;;;;;;;;

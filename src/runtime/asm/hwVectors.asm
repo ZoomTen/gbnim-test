@@ -55,7 +55,9 @@ vec_Vblank::
 	jp _vblank
 
 .org 0x48 ; LCD
-vec_LCD:: reti
+vec_LCD::
+;	jp _lcd
+	reti
 
 .org 0x50 ; Timer
 vec_Timer:: reti

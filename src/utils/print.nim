@@ -1,6 +1,6 @@
 import ./vram
 
-template print*(base: ptr VramTilemap, text: string) =
+template print*(base: ptr VramTilemap | pointer, text: string) =
   ## Convenience for printing arbitrary strings to the screen.
   when compiles(text[0].addr):
     # Text is already stored in some variable
