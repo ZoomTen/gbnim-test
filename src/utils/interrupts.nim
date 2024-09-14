@@ -11,10 +11,10 @@ type
   InterruptFlags* = set[InterruptModes]
 
 const
-  InterruptEnable* = cast[ptr InterruptFlags](0xffff)
-    ## `rIE`. Pointer to `InterruptFlags`_.
-  InterruptFlag* = cast[ptr InterruptFlags](0xff0f)
-    ## `rIF`. Pointer to `InterruptFlags`_.
+  InterruptEnable*: ptr InterruptFlags =
+    cast[ptr InterruptFlags](0xffff'u16) ## `rIE`
+  InterruptFlag*: ptr InterruptFlags = cast[ptr InterruptFlags](0xff0f'u16)
+    ## `rIF`
 
 template turnOffInterrupts*() =
   ## Injects the `di` instruction.

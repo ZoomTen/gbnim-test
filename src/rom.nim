@@ -1,3 +1,7 @@
+## -----------
+## Entry point
+## -----------
+## 
 ## Program's entry point from the Nim side.
 
 import ./runtime/init

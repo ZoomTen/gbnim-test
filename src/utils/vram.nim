@@ -4,6 +4,17 @@ import ./interrupts
 import ./codegen
 import ./incdec
 
+const
+  BgMapWidth* = 32
+  BgMapHeight* = 32
+  TilesAmount* = 128 ## Number of tiles available in a single tile set.
+  TileBytes* = 16 ## Number of bytes needed to represent one 2bpp tile.
+  TileWidthPx* = 8
+  ScreenWidthPx* = 160
+  ScreenHeightPx* = 144
+  ScreenWidth* = ScreenWidthPx div TileWidthPx
+  ScreenHeight* = ScreenHeightPx div TileWidthPx
+
 type
   StatModes* = enum
     ModeHblank = 0 ## Mode 0
@@ -35,8 +46,8 @@ type
 
   # `distinct` turned out a little less useful here
   # than I thought :(
-  VramTileset* = distinct array[0x800, byte]
-  VramTilemap* = distinct array[0x400, byte]
+  VramTileset* = distinct array[TilesAmount * TileBytes, byte]
+  VramTilemap* = distinct array[BgMapWidth * BgMapHeight, byte]
   VramPointer = ptr VramTileset | ptr VramTilemap
 
 # Normally, these would be extern volatile SFR, but making them
@@ -44,45 +55,45 @@ type
 # dereferenced. The generated code seems to be optimized as well
 # as it would if it was made volatile.
 const
-  LcdControl*: ptr LcdcFlags = cast[ptr LcdcFlags](0xff40) ## `rLCDC`
-  LcdStat*: ptr StatFlags = cast[ptr StatFlags](0xff41) ## `rSTAT`
-  ScrollY*: ptr byte = cast[ptr byte](0xff42) ## `rSCX`
-  ScrollX*: ptr byte = cast[ptr byte](0xff43) ## `rSCY`
-  LineY*: ptr byte = cast[ptr byte](0xff44) ## `rLY`
-  BgPal*: ptr byte = cast[ptr byte](0xff47) ## `rBGP`
-  ObjPal0*: ptr byte = cast[ptr byte](0xff48) ## `rOBP0`
-  ObjPal1*: ptr byte = cast[ptr byte](0xff49) ## `rOBP1`
-  WinY*: ptr byte = cast[ptr byte](0xff4a) ## `rWY`
-  WinX*: ptr byte = cast[ptr byte](0xff4b) ## `rWX`
+  LcdControl*: ptr LcdcFlags = cast[ptr LcdcFlags](0xff40'u16) ## `rLCDC`
+  LcdStat*: ptr StatFlags = cast[ptr StatFlags](0xff41'u16) ## `rSTAT`
+  ScrollY*: ptr byte = cast[ptr byte](0xff42'u16) ## `rSCX`
+  ScrollX*: ptr byte = cast[ptr byte](0xff43'u16) ## `rSCY`
+  LineY*: ptr byte = cast[ptr byte](0xff44'u16) ## `rLY`
+  BgPal*: ptr byte = cast[ptr byte](0xff47'u16) ## `rBGP`
+  ObjPal0*: ptr byte = cast[ptr byte](0xff48'u16) ## `rOBP0`
+  ObjPal1*: ptr byte = cast[ptr byte](0xff49'u16) ## `rOBP1`
+  WinY*: ptr byte = cast[ptr byte](0xff4a'u16) ## `rWY`
+  WinX*: ptr byte = cast[ptr byte](0xff4b'u16) ## `rWX`
 
 # Tile sets
 const
-  Tiles0*: ptr VramTileset = cast[ptr VramTileset](0x8000)
-  Tiles1*: ptr VramTileset = cast[ptr VramTileset](0x8800)
-  Tiles2*: ptr VramTileset = cast[ptr VramTileset](0x9000)
+  Tiles0*: ptr VramTileset = cast[ptr VramTileset](0x8000'u16)
+  Tiles1*: ptr VramTileset = cast[ptr VramTileset](0x8800'u16)
+  Tiles2*: ptr VramTileset = cast[ptr VramTileset](0x9000'u16)
 
 # BG tile maps
 const
-  BgMap0*: ptr VramTilemap = cast[ptr VramTilemap](0x9800)
-  BgMap1*: ptr VramTilemap = cast[ptr VramTilemap](0x9c00)
+  BgMap0*: ptr VramTilemap = cast[ptr VramTilemap](0x9800'u16)
+  BgMap1*: ptr VramTilemap = cast[ptr VramTilemap](0x9c00'u16)
 
 # Predefined palettes
 const
-  NormalPalette* = 0b11_10_01_00
+  NormalPalette* = 0b11_10_01_00'u8
     ## The normal light -> dark palette, use it with the
     ## ...Pal constants like:
     ## 
     ## ```nim
     ## BgPal[] = NormalPalette
     ## ```
-  InvertedPalette* = 0b00_01_10_11
+  InvertedPalette* = 0b00_01_10_11'u8
     ## An inverted dark -> light palette, use it with the
     ## ...Pal constants like:
     ## 
     ## ```nim
     ## BgPal[] = InvertedPalette
     ## ```
-  SpritePalette* = 0b10_01_00_00
+  SpritePalette* = 0b10_01_00_00'u8
     ## This is the normal palette but shifted by one lighter,
     ## since the first color is transparent. Use it with
     ## the ...Pal constants like:
@@ -144,7 +155,7 @@ template tiles*(i: Natural): int =
   ## ```nim
   ## 6.tiles() == 0x60
   ## ```
-  i * 0x10
+  i * TileBytes
 
 when false:
   # {.borrow.} doesn't work; see nim-lang/Nim#3564
@@ -162,7 +173,7 @@ when false:
 
   # Expression has no address
   template offset*(base: ptr VramTileset, tile: uint): ptr VramTileset =
-    base[][tile * 0x10].addr
+    base[][tile * TileBytes].addr
 
 else: ## :(
   template offset*(

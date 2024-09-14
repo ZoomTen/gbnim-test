@@ -1,3 +1,7 @@
+## -----------------
+## ROM configuration
+## -----------------
+## 
 ## Some constants here are used by the `tools/` compiler front-end.
 ## Should you change any of these, you will need to do a rebuild of
 ## these tools, which you can do by:

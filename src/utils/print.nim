@@ -1,3 +1,5 @@
+## Convenience for printing arbitrary strings to the screen.
+
 import ./vram
 
 template print*(base: pointer, text: string) =

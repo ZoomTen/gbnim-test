@@ -24,6 +24,6 @@ type
 
 const
   AudioTerminalOutput*: ptr AudioTerminals =
-    cast[ptr AudioTerminals](0xff25) ## `rNR51` / `rAUDTERM`
-  AudioEnable*: ptr AudioEnableFlags = cast[ptr AudioEnableFlags](0xff26)
-    ## `rNR52` / `rAUDENA`
+    cast[ptr AudioTerminals](0xff25'u16) ## `rNR51` / `rAUDTERM`
+  AudioEnable*: ptr AudioEnableFlags =
+    cast[ptr AudioEnableFlags](0xff26'u16) ## `rNR52` / `rAUDENA`

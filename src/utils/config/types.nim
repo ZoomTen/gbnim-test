@@ -1,3 +1,9 @@
+## -------------------
+## Configuration types
+## -------------------
+## 
+## Types for config.nim
+
 ## .. importdoc:: ../memory.nim
 
 type AllocType* = enum

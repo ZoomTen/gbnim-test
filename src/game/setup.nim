@@ -50,7 +50,7 @@ proc setup*(): void =
   cast[pointer](BgMap0.offset(1, 5)).print("To next:")
   cast[pointer](BgMap0.offset(2, 14)).print("POCKET CLICKER!")
   cast[pointer](BgMap0.offset(3, 16)).print("Just tap A...")
-  
+
   (Sprites.addr).copyMem(spriteTemplate[0].addr, sizeof(spriteTemplate))
 
   when false:
