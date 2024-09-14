@@ -20,6 +20,7 @@ wGameCounter:: .ds 2
 ; because the value to be loaded into the rDMA
 ; register is HIGH(wSpriteRAM).
 ; 4 bytes per sprite * 40 sprites
+_sprites:: ; alias
 wSpriteRAM:: .ds 4 * 40
 
 ;;;;;;;; HRAM ;;;;;;;;
