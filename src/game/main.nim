@@ -10,12 +10,12 @@ proc main*(): void =
     i: uint16 = 0
     l: uint32 = 0
   while true:
-    vMap0.offset(10, 1).print($i)
-    vMap0.offset(10, 3).print($l & " ")
+    BgMap0.offset(10, 1).print($i)
+    BgMap0.offset(10, 3).print($l & " ")
     if l == 60:
       inc i
       l = 0
     else:
       inc l
-    initMalloc() # arena alloc, no such thing as free
+    initMalloc()
     waitInterrupt()

@@ -3,7 +3,7 @@
 ## Dunno why it's called "stdlib" when used with patchFile...
 ##
 
-proc nimZeroMem*(p: pointer, size: Natural) {.compilerproc.} =
+proc nimZeroMem*(p: pointer, size: Natural) {.compilerproc, inline.} =
   var
     a = cast[uint16](p)
     i = size

@@ -1,3 +1,18 @@
+## `itoa` integer to string conversion utilities.
+## 
+## Nim has its own way of converting int to strings, and it does this
+## by converting the number to int64, and performing long division
+## on it. Modern hardware may very well handle that sort of thing,
+## however this *will not work* on extremely limited hardware such
+## as the Game Boy. It's an 8-bit console from 1989, after all.
+##
+## The default stringizing operator will throw an error complaining
+## about `_divulonglong`, because SDCC is trying to find a division
+## operator between two int64s, which not even GBDK provides!
+##
+## So, if you're having trouble with them, you should import this
+## module and let the `$` procs from here override the one from `system`.
+
 import ./codegen
 
 import ../config
@@ -30,8 +45,7 @@ when useVendorItoa:
   ): cstring {.importc, oldCall.} =
     discard
 
-else:
-  ## My itoa
+else: # My itoa
   # This import definitely makes a difference :/
   import ./incdec
 
@@ -111,18 +125,6 @@ else:
     itoaGeneral(n, s, powersOf10i16, false)
 
 proc `$`*(x: int16): string =
-  ## Nim has its own way of converting int to strings, and it does this
-  ## by converting the number to int64, and performing long division
-  ## on it. Modern hardware may very well handle that sort of thing,
-  ## however this *will not work* on extremely limited hardware such
-  ## as the Game Boy. It's an 8-bit console from 1989, after all.
-  ##
-  ## The default stringizing operator will throw an error complaining
-  ## about `_divulonglong`, because SDCC is trying to find a division
-  ## operator between two int64s, which not even GBDK provides!
-  ##
-  ## So, if you're having trouble with them, you should import this
-  ## module and let these procs override the one from `system`.
   let strbuf: ptr cstring = cstring.create(MaxInt16StrLen)
   result =
     when useVendorItoa:

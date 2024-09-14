@@ -2,7 +2,16 @@
 
 Game Boy stuff. Written in Nim and assembly.
 
+## What do I need?
+
+* Nim >= 2.0.0, due to the use of [extended macro pragmas](https://nim-lang.org/2.0.0/manual_experimental.html#extended-macro-pragmas) for annotating variables.
+* [SDCC](https://sdcc.sourceforge.net/snap.php) (or [GBDK 2020](https://github.com/gbdk-2020/gbdk-2020), which includes SDCC).
+
 ## How do I build this thing?
+
+Before compiling, you will have to set the `GBDK_ROOT` environment variable to the absolute path where SDCC or GBDK is located. The compiler will assume the following:
+* compiler binaries are under `${GBDK_ROOT}/bin`
+* stdlib includes are under `${GBDK_ROOT}/include`.
 
 ```sh
 nim build
@@ -24,7 +33,7 @@ nim cleanDist
 
 ## Cool, where do I start?
 
-src/program/main.nim. That's where you'll want to start messing about.
+`src/game/setup.nim` and `src/game/main.nim`. That's where you'll want to start messing about.
 There are two appropriately-named functions `setup` and `main`, the
 latter logically being performed after the former.
 
@@ -37,7 +46,7 @@ read every one of them if you can.
 <dl>
 <dt>config.nims</dt>
 <dd><p>
-TODO
+This is the configuration file for the project. 
 </p></dd>
 
 <dt>include</dt>

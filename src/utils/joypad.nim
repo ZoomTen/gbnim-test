@@ -1,9 +1,9 @@
-# Joypad related stuff
+## Joypad related stuff.
 
 {.compile: "asm/joypad.asm".}
 
 # raw hardware constants
-const rJoyp* = cast[ptr byte](0xff00)
+const Joypad*: ptr byte = cast[ptr byte](0xff00) ## `rJOYP`
 
 # joypad result type
 type

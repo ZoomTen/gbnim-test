@@ -1,4 +1,4 @@
-## Macros for SDCC-specific features.
+## Macros to bring SDCC-specific annotations to Nim.
 
 import std/macros
 export macros
@@ -42,6 +42,12 @@ template codeGenMacro(appendString: string) {.dirty.} =
 
 macro banked*(node: untyped): untyped =
   ## Declares a proc as banked.
+  ## 
+  ## ```nim
+  ## proc something(): void {.exportc, banked.} =
+  ##   discard
+  ## ```
+
   when false:
     if node.kind notIn [nnkProcDef, nnkFuncDef]:
       {.error: "this macro only works for procs".}
@@ -50,13 +56,25 @@ macro banked*(node: untyped): untyped =
 macro oldCall*(node: untyped): untyped =
   ## Declares a proc that uses the SDCC v0 convention. For reference,
   ## the default convention used is SDCC v1.
+  ## 
+  ## ```nim
+  ## proc something(): void {.exportc, oldCall.} =
+  ##   discard
+  ## ```
   when false:
     if node.kind notIn [nnkProcDef, nnkFuncDef]:
       {.error: "this macro only works for procs".}
   codeGenMacro("$# $# $# __sdcccall(0)")
 
 macro isr*(node: untyped): untyped =
-  ## Declares a proc that is an ISR.
+  ## Declares a proc that is an interrupt service routine (ISR).
+  ## As a result, when this proc is called, the contents of every register
+  ## is pushed beforehand and will be popped after execution.
+  ## 
+  ## ```nim
+  ## proc something(): void {.exportc, isr.} =
+  ##   discard
+  ## ```
   when false:
     if node.kind notIn [nnkProcDef, nnkFuncDef]:
       {.error: "this macro only works for procs".}
@@ -65,6 +83,10 @@ macro isr*(node: untyped): untyped =
 macro asmDefined*(node: untyped): untyped =
   ## Declares a var that has been allocated statically; i.e. defined
   ## explicitly in WRAM.
+  ## 
+  ## ```nim
+  ## var myStaticVariable {.importc, asmDefined, noinit.}: byte
+  ## ```
   when false:
     if node.kind notIn [nnkVarSection]:
       {.error: "this macro only works for vars".}
@@ -72,6 +94,10 @@ macro asmDefined*(node: untyped): untyped =
 
 macro hramByte*(node: untyped): untyped =
   ## Declares a byte var in HRAM.
+  ## 
+  ## ```nim
+  ## var myStaticVariable {.importc, hramByte, noinit.}: byte
+  ## ```
   when false:
     if node.kind notIn [nnkVarSection]:
       {.error: "this macro only works for vars".}

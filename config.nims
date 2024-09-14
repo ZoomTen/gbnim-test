@@ -1,26 +1,26 @@
 import os, strutils
 import ./src/config
 
+when defined(nimsuggest):
+  import system/nimscript
+
 # Precompile "scripts"
 #-------------------------------------#
 proc precompileTools() =
-  let tools = ["compile", "link"]
-
-  for toolName in tools:
+  for tool in ["compile", "link"]:
     let shouldRecompile =
-      (findExe("tools" / toolName) == "") or (
+      (findExe("tools" / tool) == "") or (
         # TODO: also check if the tool src is newer than the binary
         false
       )
-
     if shouldRecompile:
-      echo "make '" & toolName & "' wrapper..."
+      echo "make '" & tool & "' wrapper..."
       selfExec(
         [
           "c",
           "-d:release",
           "--hints:off",
-          thisDir() / "tools" / toolName & ".nim",
+          thisDir() / "tools" / tool & ".nim",
         ].join(" ")
       )
 
@@ -36,7 +36,6 @@ proc setupGbdk() =
   # for compiling, linking and finalization
   put "icc.exe", thisDir() / "tools" / "compile"
   put "icc.options.always", ""
-
   put "icc.linkerexe", thisDir() / "tools" / "link"
   put "icc.options.linker", ""
 
@@ -55,8 +54,11 @@ proc setupGbdk() =
         ## is what this is using.
         "standalone"
     )
+  
   switch "gc", "arc"
-  switch "cpu", "avr" # hoping this was necessary
+
+  ## Matches the SDCC sm83 port profile: 16-bit int, little-endian, ...
+  switch "cpu", "avr"
 
   switch "define", "nimMemAlignTiny"
   when false:
@@ -70,6 +72,8 @@ proc setupGbdk() =
   switch "define", "noSignalHandler"
   switch "define", "danger"
   switch "define", "nimPreviewSlimSystem"
+
+  ## Minimize use of stdlib as much as we can
   switch "define", "nimNoLibc"
 
   when useNimDebuggerLines:
@@ -85,17 +89,23 @@ proc setupGbdk() =
   switch "boundChecks", "on"
   switch "panics", "on"
   switch "exceptions", "goto"
-  switch "noMain", "on"
 
+  ## We are calling NimMainModule ourselves
+  switch "noMain", "on"
 #-------------------------------------#
 
 # Set compile options specific to main file
 #-------------------------------------#
 if projectPath() == thisDir() / mainFile:
   setupGbdk()
+
+  ## Override the Nim memory management utilities
+  ## to optimize for the Game Boy environment
   patchFile("stdlib", "memory", "src/utils/nimMemory")
+  
   when buildCacheHere:
     switch "nimcache", "_build"
+  
   switch "listCmd"
 #-------------------------------------#
 
