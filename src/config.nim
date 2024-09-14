@@ -33,7 +33,7 @@ const
 # Constants used by the program
 
 const
-  allocType*: AllocType = FreeList ## which allocator to use
+  allocType*: AllocType = Arena ## which allocator to use
   useVendorItoa* = false
     ## if we should use vendored GPL'd itoa or my crappy version
     ## which is a lot slower.
