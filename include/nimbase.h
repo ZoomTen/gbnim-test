@@ -47,8 +47,10 @@ typedef char* NCSTRING;
 #define fwrite(a,b,c,d) 0
 #define fflush(a) 0
 
+#define TFrame void // Nim 2.2.x adds this
+
 // these are added by os:any
 // #define FILE void
-// #define TFrame void
+// #define exit(x) (x)
 // #define stderr (void*)0
-// + divulonglong, cannot use that
+// + divulonglong, mulint; cannot use that
