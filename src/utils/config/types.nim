@@ -9,12 +9,14 @@
 type AllocType* = enum
   ## Sets the memory allocation strategy the program will use.
   ## 
-  ## * **Arena** is a simple bump-based, stack-like memory allocator.
-  ##   Performant, although you cannot free memory easily—free only
-  ##   works on the address returned by the LAST malloc call before
-  ##   that point. Otherwise, it's a no-op and that memory is leaked :)
+  ## * **Arena** is a simple bump-based memory allocator.
   ## 
   ##   .. tip:: You can use `initMalloc()`_ to free everything.
+  ## 
+  ## * **StackLike** is exactly like Arena, but it keeps track of the latest
+  ##   memory being allocated, therefore it comes with a `free` function.
+  ##   Which only works on the address returned by the **last** malloc call.
+  ##   Otherwise, it's ignored, and that memory is leaked :)
   ## 
   ## * **FreeList** is a custom free-list memory allocator implemented in ASM, but
   ##   inspired by SDCC's allocator.
@@ -28,5 +30,6 @@ type AllocType* = enum
   Arena
   FreeList
   Sdcc
+  StackLike
   NimArena
   NimFreeList

@@ -64,7 +64,7 @@ when defined(nimdoc):
     discard
 
 else:
-  when allocType in [Arena, FreeList, Sdcc]:
+  when allocType in [Arena, FreeList, Sdcc, StackLike]:
     ## Alloc types implemented in ASM
     when allocType == Arena:
       {.compile: "asm/allocator.arena.asm".}
@@ -75,6 +75,9 @@ else:
     elif allocType == Sdcc:
       {.compile: "asm/allocator.sdcc.asm".}
       {.compile: "asm/allocator.sdcc.ram.asm".}
+    elif allocType == StackLike:
+      {.compile: "asm/allocator.stack.asm".}
+      {.compile: "asm/allocator.stack.ram.asm".}
     proc initMalloc*(): void {.importc.}
     proc malloc(size: uint16): pointer {.importc.}
     proc free(which: pointer): void {.importc.}
