@@ -21,6 +21,7 @@ import std/os
 import std/strutils
 import ./helpers
 import std/syncio
+import ../src/config # bleh
 
 template runCc(gbdkRoot, infile, outfile: string) =
   execWithEcho(
@@ -37,7 +38,7 @@ template runCc(gbdkRoot, infile, outfile: string) =
         "-D" & "__PORT_sm83",
         "--opt-code-speed",
         "--max-allocs-per-node",
-        "50000",
+        $compilerMaxAlloc,
         # LCC defaults
         "--no-std-crt0",
         "--fsigned-char",
