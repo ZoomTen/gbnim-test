@@ -29,11 +29,7 @@ proc setup*(): void =
   ObjPal0[] = NormalPalette
   ObjPal1[] = NormalPalette
   AudioEnable[] = {}
-  # clear the entirety of VRAM
-  Tiles0.zeroMem(
-    0x800 + 0x800 + 0x800 + # tiles
-    0x400 + 0x400 # map
-  )
+  clearVram()
   enableInterrupts({IntVblank})
   disableLcdcFeatures({UseTiles0})
 

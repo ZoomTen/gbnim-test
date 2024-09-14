@@ -290,3 +290,8 @@ proc waitFrame*(): void =
     ## `halt` waits for ANY interrupt to fire, but only
     ## the vblank interrupt should set `vblankAcked`.
     waitInterrupt()
+
+template clearVram*() =
+  ## Clear the entirety of VRAM0. This should be called only
+  ## when the screen is disabled.
+  Tiles0.zeroMem(3 * sizeof(VramTileset) + 2 * sizeof(VramTilemap))
